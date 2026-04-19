@@ -1,0 +1,257 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import MetricCard from "../../components/metric-card";
+import RiskDrivers from "../../components/risk-drivers";
+import MonteCarloChart from "../../components/charts/monte-carlo";
+import FloatDistribution from "../../components/charts/float-distribution";
+import { apiFetch } from "../../lib/api";
+
+type Explanation = {
+  root_causes: string[];
+  key_risks: string[];
+  recommended_actions: string[];
+  executive_summary: string;
+};
+
+export default function DashboardPage() {
+  const searchParams = useSearchParams();
+  const jobId = searchParams.get("job_id");
+
+  const [data, setData] = useState<any>(null);
+  const [explanation, setExplanation] = useState<Explanation | null>(null);
+  const [explanationLoading, setExplanationLoading] = useState(false);
+  const [explanationError, setExplanationError] = useState("");
+
+  useEffect(() => {
+    if (!jobId) return;
+
+    let interval: any;
+
+    const fetchData = async () => {
+      try {
+        const res = await apiFetch(`/jobs/${jobId}`);
+        const json = await res.json();
+        setData(json);
+
+        if (json.status === "done" || json.status === "failed") {
+          clearInterval(interval);
+        }
+      } catch (err) {
+        console.error("FETCH ERROR:", err);
+      }
+    };
+
+    fetchData();
+    interval = setInterval(fetchData, 3000);
+
+    return () => clearInterval(interval);
+  }, [jobId]);
+
+  useEffect(() => {
+    if (!jobId || !data || data.status !== "done") return;
+    if (explanation || explanationLoading) return;
+
+    const fetchExplanation = async () => {
+      try {
+        setExplanationLoading(true);
+        setExplanationError("");
+
+        const res = await apiFetch("/ai/explain", {
+          method: "POST",
+          body: JSON.stringify({
+            job_id: Number(jobId),
+          }),
+        });
+
+        const json = await res.json();
+        setExplanation(json);
+      } catch (err) {
+        console.error("EXPLANATION ERROR:", err);
+        setExplanationError("Failed to load AI explanation.");
+      } finally {
+        setExplanationLoading(false);
+      }
+    };
+
+    fetchExplanation();
+  }, [jobId, data, explanation, explanationLoading]);
+
+  if (!data) return <p>Loading dashboard...</p>;
+
+  if (data.status === "failed") {
+    return (
+      <div style={{ padding: "20px" }}>
+        <h1>Project Dashboard</h1>
+        <p style={{ color: "red" }}>
+          Analysis failed: {data.error || "Unknown error"}
+        </p>
+      </div>
+    );
+  }
+
+  if (data.status !== "done") {
+    return <p>Processing schedule... Please wait ⏳</p>;
+  }
+
+  const analysis = data.analysis || {};
+
+  const monteCarloData =
+    analysis?.monte_carlo
+      ?.map((item: any) => {
+        if (item?.x !== undefined && item?.y !== undefined) {
+          return {
+            x: item.x,
+            y: item.y,
+          };
+        }
+
+        if (
+          item?.bin_start !== undefined &&
+          item?.bin_end !== undefined
+        ) {
+          return {
+            x: (item.bin_start + item.bin_end) / 2,
+            y: item.count,
+          };
+        }
+
+        return null;
+      })
+      .filter(Boolean) || [];
+
+  const floatMetrics = {
+    total_activities: analysis?.total_activities ?? 0,
+    open_ends: analysis?.open_ends ?? 0,
+    negative_float_activities: analysis?.negative_float ?? 0,
+  };
+
+  return (
+    <div style={{ padding: "20px" }}>
+      <h1>Project Dashboard</h1>
+
+      <div style={{ display: "flex", gap: "20px", marginTop: "20px", flexWrap: "wrap" }}>
+        <MetricCard title="Health Score" value={analysis?.health_score ?? 0} />
+
+        <MetricCard
+          title="Total Activities"
+          value={analysis?.total_activities ?? 0}
+        />
+
+        <MetricCard
+          title="Open Ends"
+          value={analysis?.open_ends ?? 0}
+        />
+
+        <MetricCard
+          title="Negative Float"
+          value={analysis?.negative_float ?? 0}
+        />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "20px",
+          marginTop: "40px",
+          flexWrap: "wrap",
+        }}
+      >
+        <div style={{ flex: 1, minWidth: 400 }}>
+          {monteCarloData.length > 0 ? (
+            <MonteCarloChart data={monteCarloData} />
+          ) : (
+            <p>No Monte Carlo data available</p>
+          )}
+        </div>
+
+        <div style={{ flex: 1, minWidth: 400 }}>
+          <FloatDistribution metrics={floatMetrics} />
+        </div>
+      </div>
+
+      <div style={{ marginTop: "40px" }}>
+        <RiskDrivers data={analysis?.risk_drivers || []} />
+      </div>
+
+      <div style={{ marginTop: "30px" }}>
+        <h2>Key Findings</h2>
+        <ul>
+          {(analysis?.key_findings || []).map((item: string, i: number) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div style={{ marginTop: "30px" }}>
+        <h2>Recommended Actions</h2>
+        <ul>
+          {(analysis?.immediate_actions || []).map((item: string, i: number) => (
+            <li key={i}>{item}</li>
+          ))}
+        </ul>
+      </div>
+
+      <div style={{ marginTop: "30px" }}>
+        <h2>Executive Summary</h2>
+        <p>{analysis?.executive_summary || "No summary available."}</p>
+      </div>
+
+      <div
+        style={{
+          marginTop: "40px",
+          padding: "20px",
+          border: "1px solid #ddd",
+          borderRadius: "12px",
+          background: "#fff",
+        }}
+      >
+        <h2>AI Explanation Engine</h2>
+
+        {explanationLoading && <p>Generating executive explanation...</p>}
+
+        {explanationError && (
+          <p style={{ color: "red" }}>{explanationError}</p>
+        )}
+
+        {!explanationLoading && !explanationError && explanation && (
+          <>
+            <div style={{ marginTop: "20px" }}>
+              <h3>Root Cause Analysis</h3>
+              <ul>
+                {(explanation.root_causes || []).map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <h3>Key Risks</h3>
+              <ul>
+                {(explanation.key_risks || []).map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <h3>Recommended Actions</h3>
+              <ul>
+                {(explanation.recommended_actions || []).map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <h3>Executive Interpretation</h3>
+              <p>{explanation.executive_summary}</p>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
