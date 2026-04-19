@@ -38,7 +38,6 @@ function getHealthTone(score: number) {
     color: "#991b1b",
     bg: "#fee2e2",
     border: "#fca5e5",
-    border: "#fca5a5",
   };
 }
 
