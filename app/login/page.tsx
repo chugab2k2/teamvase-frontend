@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { API } from "@/lib/api";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,9 +12,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
-  const API =
-    process.env.NEXT_PUBLIC_API_URL || "https://api.teamvase.com";
 
   const nextUrl = searchParams.get("next") || "/upload";
 
@@ -86,14 +84,32 @@ export default function LoginPage() {
           style={inputStyle}
         />
 
-        <button onClick={handleLogin} disabled={loading} style={buttonStyle}>
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          style={buttonStyle}
+        >
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        {error && <p style={{ color: "red", marginTop: 10 }}>{error}</p>}
+        {error && (
+          <p style={{ color: "red", marginTop: 10 }}>{error}</p>
+        )}
 
-        <p style={{ marginTop: 16, fontSize: 14, color: "#64748b" }}>
-          Don’t have an account yet? Registration will be added next.
+        <p
+          style={{
+            marginTop: 16,
+            fontSize: 14,
+            color: "#475569",
+          }}
+        >
+          Don’t have an account yet?{" "}
+          <a
+            href={`/register?next=${encodeURIComponent(nextUrl)}`}
+            style={{ color: "#2563eb", fontWeight: 700, textDecoration: "none" }}
+          >
+            Create account
+          </a>
         </p>
       </div>
     </div>

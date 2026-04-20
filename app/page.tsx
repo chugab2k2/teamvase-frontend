@@ -74,7 +74,8 @@ export default function LandingPage() {
                 marginTop: "28px",
               }}
             >
-              <a href="/upload" style={primaryHeroBtn}>
+
+              <a href="/register?next=/upload" style={primaryHeroBtn}>
                 Start Uploading
               </a>
 
