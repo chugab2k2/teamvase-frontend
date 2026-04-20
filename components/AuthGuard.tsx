@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function AuthGuard({
   children,
@@ -10,7 +10,6 @@ export default function AuthGuard({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(true);
 
@@ -23,15 +22,12 @@ export default function AuthGuard({
     }
 
     if (!token) {
-      const query = searchParams?.toString();
-      const nextPath = query ? `${pathname}?${query}` : pathname;
-
-      router.replace(`/login?next=${encodeURIComponent(nextPath)}`);
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
       return;
     }
 
     setLoading(false);
-  }, [pathname, router, searchParams]);
+  }, [pathname, router]);
 
   if (loading) {
     return <div style={{ padding: 40 }}>Checking authentication...</div>;
