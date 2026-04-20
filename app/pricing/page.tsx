@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { API } from "@/lib/api";
 
 type MeResponse = {
   id: number;
@@ -168,7 +168,30 @@ export default function PricingPage() {
         setLoading(true);
         setError("");
 
-        const res = await apiFetch("/auth/me");
+        const token =
+          typeof window !== "undefined"
+            ? localStorage.getItem("token")
+            : null;
+
+        if (!token) {
+          setMe(null);
+          setLoading(false);
+          return;
+        }
+
+        const res = await fetch(`${API}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          setMe(null);
+          setLoading(false);
+          return;
+        }
+
         const data = await res.json();
 
         if (!res.ok) {
@@ -178,7 +201,8 @@ export default function PricingPage() {
         setMe(data);
       } catch (err: any) {
         console.error("PRICING /auth/me ERROR:", err);
-        setError(err?.message || "Failed to load account.");
+        setMe(null);
+        setError(err?.message || "");
       } finally {
         setLoading(false);
       }
@@ -196,12 +220,32 @@ export default function PricingPage() {
       setCheckoutLoading(true);
       setError("");
 
-      const res = await apiFetch("/billing/create-checkout-session", {
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("token")
+          : null;
+
+      if (!token) {
+        window.location.href = "/login?next=/billing";
+        return;
+      }
+
+      const res = await fetch(`${API}/billing/create-checkout-session`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({}),
       });
 
       const data = await res.json();
+
+      if (res.status === 401) {
+        localStorage.removeItem("token");
+        window.location.href = "/login?next=/billing";
+        return;
+      }
 
       if (!res.ok) {
         throw new Error(data?.detail || data?.error || "Unable to start checkout.");
@@ -417,7 +461,11 @@ export default function PricingPage() {
                 borderRadius: "14px",
                 border: "1px solid #2563eb",
                 background:
-                  currentPlan === "pro" ? "#dbeafe" : checkoutLoading ? "#93c5fd" : "#2563eb",
+                  currentPlan === "pro"
+                    ? "#dbeafe"
+                    : checkoutLoading
+                    ? "#93c5fd"
+                    : "#2563eb",
                 color: currentPlan === "pro" ? "#1d4ed8" : "#ffffff",
                 fontWeight: 800,
                 cursor:
@@ -495,45 +543,6 @@ export default function PricingPage() {
           <FeatureRow feature="Saved reports" free="Up to 3" pro="Unlimited" />
           <FeatureRow feature="Executive workflow continuity" free="Limited" pro="Included" />
         </section>
-
-        <section
-          style={{
-            background: "#ffffff",
-            border: "1px solid #e5e7eb",
-            borderRadius: "24px",
-            padding: "24px",
-            boxShadow: "0 6px 20px rgba(15, 23, 42, 0.06)",
-          }}
-        >
-          <h2
-            style={{
-              marginTop: 0,
-              marginBottom: "12px",
-              fontSize: "24px",
-              fontWeight: 900,
-              color: "#0f172a",
-            }}
-          >
-            Why upgrade now
-          </h2>
-
-          <div
-            style={{
-              display: "grid",
-              gap: "12px",
-            }}
-          >
-            <div style={reasonItem}>
-              Convert raw schedule outputs into management-grade AI explanations.
-            </div>
-            <div style={reasonItem}>
-              Compare projects side-by-side with AI-generated portfolio insight.
-            </div>
-            <div style={reasonItem}>
-              Remove friction caused by free-plan upload and report ceilings.
-            </div>
-          </div>
-        </section>
       </div>
     </div>
   );
@@ -544,16 +553,6 @@ const bulletItem: React.CSSProperties = {
   color: "#334155",
   padding: "12px 14px",
   borderRadius: "12px",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-};
-
-const reasonItem: React.CSSProperties = {
-  fontSize: "14px",
-  color: "#334155",
-  lineHeight: 1.7,
-  padding: "14px 16px",
-  borderRadius: "14px",
   background: "#f8fafc",
   border: "1px solid #e2e8f0",
 };
