@@ -10,7 +10,6 @@ export default function RegisterPage() {
 
   const nextUrl = searchParams.get("next") || "/upload";
 
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -25,10 +24,6 @@ export default function RegisterPage() {
     setSuccessText("");
 
     try {
-      if (!name.trim()) {
-        throw new Error("Please enter your name.");
-      }
-
       if (!email.trim()) {
         throw new Error("Please enter your email.");
       }
@@ -51,7 +46,6 @@ export default function RegisterPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name,
           email,
           password,
         }),
@@ -109,13 +103,6 @@ export default function RegisterPage() {
           Create your account to start uploading Primavera schedules and using
           TeamVase AI Copilot.
         </p>
-
-        <input
-          placeholder="Full name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          style={inputStyle}
-        />
 
         <input
           placeholder="Email"

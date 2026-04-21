@@ -31,11 +31,11 @@ export default function LoginPage() {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error("Invalid credentials");
-      }
-
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.detail || "Invalid credentials");
+      }
 
       localStorage.setItem("token", data.access_token);
 
