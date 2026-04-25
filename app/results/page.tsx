@@ -3,6 +3,8 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 
+import { apiFetch } from "@/lib/api"; // ✅ IMPORTANT
+
 import MetricCard from "@/components/metric-card";
 import RiskDrivers from "@/components/risk-drivers";
 import IssuesTable from "@/components/issues-table";
@@ -15,13 +17,15 @@ import jsPDF from "jspdf";
 
 function Card({ title, value, color }: any) {
   return (
-    <div style={{
-      background: "#fff",
-      padding: 16,
-      borderRadius: 10,
-      borderLeft: `4px solid ${color}`,
-      border: "1px solid #e5e7eb"
-    }}>
+    <div
+      style={{
+        background: "#fff",
+        padding: 16,
+        borderRadius: 10,
+        borderLeft: `4px solid ${color}`,
+        border: "1px solid #e5e7eb",
+      }}
+    >
       <div style={{ fontSize: 12, color: "#6b7280" }}>{title}</div>
       <div style={{ fontSize: 20, fontWeight: 600 }}>{value}</div>
     </div>
@@ -34,12 +38,14 @@ function RiskSummary({ risk }: any) {
   const range = (risk.p90 - risk.p10).toFixed(0);
 
   return (
-    <div style={{
-      display: "grid",
-      gridTemplateColumns: "repeat(4, 1fr)",
-      gap: 12,
-      marginTop: 20
-    }}>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(4, 1fr)",
+        gap: 12,
+        marginTop: 20,
+      }}
+    >
       <Card title="P50" value={risk.p50?.toFixed(0)} color="#2563eb" />
       <Card title="P90" value={risk.p90?.toFixed(0)} color="#dc2626" />
       <Card title="Range" value={`${range} hrs`} color="#f59e0b" />
@@ -58,37 +64,16 @@ export default function ResultsPage() {
   useEffect(() => {
     if (!jobId) return;
 
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Session expired. Please login.");
-      return;
-    }
-
     const interval = setInterval(async () => {
       try {
-        const res = await fetch(
-          `http://207.154.218.184:8000/jobs/${jobId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        if (res.status === 401) {
-          alert("Session expired. Please login again.");
-          clearInterval(interval);
-          return;
-        }
-
+        // ✅ FIXED: using apiFetch instead of hardcoded URL
+        const res = await apiFetch(`/jobs/${jobId}`);
         const data = await res.json();
 
         if (data.status === "done") {
           clearInterval(interval);
           setResult(data.analysis);
         }
-
       } catch (err) {
         console.error("Polling error:", err);
       }
@@ -121,17 +106,18 @@ export default function ResultsPage() {
 
   return (
     <div style={{ padding: 24, background: "#f4f6f8" }}>
-
       <button onClick={exportPDF}>Export PDF</button>
 
       <div ref={reportRef}>
-
         <h1>Project Dashboard</h1>
 
         <div style={{ display: "flex", gap: 10 }}>
           <MetricCard title="Health" value={result.health_score} />
           <MetricCard title="Open Ends" value={result.metrics?.open_ends} />
-          <MetricCard title="Neg Float" value={result.metrics?.negative_float_activities} />
+          <MetricCard
+            title="Neg Float"
+            value={result.metrics?.negative_float_activities}
+          />
         </div>
 
         <RiskSummary risk={result.risk_analysis} />
@@ -147,7 +133,6 @@ export default function ResultsPage() {
         <FloatChart metrics={result} />
 
         <IssuesTable issues={result.issues} />
-
       </div>
     </div>
   );

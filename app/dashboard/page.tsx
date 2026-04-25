@@ -37,7 +37,7 @@ function getHealthTone(score: number) {
     label: "Critical",
     color: "#991b1b",
     bg: "#fee2e2",
-    border: "#fca5e5",
+    border: "#fca5a5",
   };
 }
 
@@ -71,6 +71,7 @@ function SectionCard({
         >
           {title}
         </h2>
+
         {subtitle ? (
           <p
             style={{
@@ -83,6 +84,7 @@ function SectionCard({
           </p>
         ) : null}
       </div>
+
       {children}
     </section>
   );
@@ -122,6 +124,7 @@ function KpiCard({
           background: accent || "#2563eb",
         }}
       />
+
       <div
         style={{
           fontSize: "13px",
@@ -134,6 +137,7 @@ function KpiCard({
       >
         {title}
       </div>
+
       <div
         style={{
           fontSize: "34px",
@@ -144,6 +148,7 @@ function KpiCard({
       >
         {value}
       </div>
+
       {note ? (
         <div
           style={{
@@ -209,12 +214,7 @@ function RiskDriversPanel({ data }: { data: any[] }) {
   const items = Array.isArray(data) ? data : [];
 
   return (
-    <div
-      style={{
-        display: "grid",
-        gap: "12px",
-      }}
-    >
+    <div style={{ display: "grid", gap: "12px" }}>
       {items.length === 0 ? (
         <p
           style={{
@@ -250,6 +250,7 @@ function RiskDriversPanel({ data }: { data: any[] }) {
               >
                 {item?.activity || "Unnamed Driver"}
               </div>
+
               <div
                 style={{
                   color: "#64748b",
@@ -281,62 +282,6 @@ function RiskDriversPanel({ data }: { data: any[] }) {
   );
 }
 
-function PremiumLockCard({
-  title,
-  message,
-}: {
-  title: string;
-  message: string;
-}) {
-  return (
-    <div
-      style={{
-        border: "1px solid #bfdbfe",
-        background: "#eff6ff",
-        borderRadius: "18px",
-        padding: "22px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "20px",
-          fontWeight: 800,
-          color: "#0f172a",
-          marginBottom: "8px",
-        }}
-      >
-        🔒 {title}
-      </div>
-      <div
-        style={{
-          fontSize: "14px",
-          color: "#475569",
-          lineHeight: 1.7,
-          marginBottom: "16px",
-        }}
-      >
-        {message}
-      </div>
-      <button
-        onClick={() => {
-          window.location.href = "/pricing";
-        }}
-        style={{
-          padding: "12px 16px",
-          borderRadius: "12px",
-          border: "1px solid #2563eb",
-          background: "#2563eb",
-          color: "#ffffff",
-          fontWeight: 700,
-          cursor: "pointer",
-        }}
-      >
-        Upgrade to Pro
-      </button>
-    </div>
-  );
-}
-
 export default function DashboardPage() {
   const searchParams = useSearchParams();
   const jobId = searchParams.get("job_id");
@@ -362,7 +307,7 @@ export default function DashboardPage() {
           clearInterval(interval);
         }
       } catch (err) {
-        console.error("FETCH ERROR:", err);
+        console.error("FETCH DASHBOARD ERROR:", err);
       }
     };
 
@@ -380,7 +325,6 @@ export default function DashboardPage() {
       try {
         setExplanationLoading(true);
         setExplanationError("");
-        setExplanationLocked(false);
 
         const res = await apiFetch("/ai/explain", {
           method: "POST",
@@ -391,15 +335,16 @@ export default function DashboardPage() {
 
         const json = await res.json();
         setExplanation(json);
+        setExplanationLocked(false);
       } catch (err: any) {
-        console.error("EXPLANATION ERROR:", err);
-
         if (err instanceof ApiError && err.status === 403) {
+          console.log("AI Explanation locked for Free plan.");
           setExplanationLocked(true);
           setExplanationError("");
           return;
         }
 
+        console.error("EXPLANATION ERROR:", err);
         setExplanationError("Failed to load AI explanation.");
       } finally {
         setExplanationLoading(false);
@@ -748,6 +693,7 @@ export default function DashboardPage() {
               >
                 AI Explanation Engine
               </h2>
+
               <p
                 style={{
                   margin: "8px 0 0",
@@ -776,26 +722,72 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {explanationLocked ? (
-            <PremiumLockCard
-              title="AI Explanation is a Pro feature"
-              message="Upgrade to Pro to unlock executive interpretation, root-cause analysis, strategic risks, and recommended management actions."
-            />
-          ) : explanationLoading ? (
+          {explanationLoading && !explanationLocked ? (
             <p style={{ margin: 0, color: "#475569" }}>
               Generating executive explanation...
             </p>
-          ) : explanationError ? (
+          ) : null}
+
+          {explanationError ? (
             <p style={{ margin: 0, color: "#b91c1c", fontWeight: 600 }}>
               {explanationError}
             </p>
-          ) : explanation ? (
+          ) : null}
+
+          {explanationLocked ? (
             <div
               style={{
-                display: "grid",
-                gap: "20px",
+                background: "#eff6ff",
+                border: "1px solid #bfdbfe",
+                borderRadius: "18px",
+                padding: "20px",
               }}
             >
+              <h3
+                style={{
+                  margin: "0 0 10px",
+                  color: "#1e3a8a",
+                  fontSize: "18px",
+                  fontWeight: 800,
+                }}
+              >
+                🔒 AI Explanation is a Pro feature
+              </h3>
+
+              <p
+                style={{
+                  margin: "0 0 16px",
+                  color: "#334155",
+                  fontSize: "14px",
+                  lineHeight: 1.7,
+                }}
+              >
+                Upgrade to Pro to unlock root-cause interpretation, executive
+                risk analysis, strategic recommendations, and management-level
+                schedule explanations.
+              </p>
+
+              <button
+                onClick={() => {
+                  window.location.href = "/pricing";
+                }}
+                style={{
+                  padding: "12px 16px",
+                  borderRadius: "12px",
+                  border: "1px solid #2563eb",
+                  background: "#2563eb",
+                  color: "#ffffff",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Upgrade to Pro
+              </button>
+            </div>
+          ) : null}
+
+          {!explanationLoading && !explanationError && explanation && !explanationLocked ? (
+            <div style={{ display: "grid", gap: "20px" }}>
               <section
                 style={{
                   display: "grid",
@@ -820,6 +812,7 @@ export default function DashboardPage() {
                   >
                     Root Cause Analysis
                   </h3>
+
                   <InsightList
                     items={explanation.root_causes || []}
                     emptyText="No root cause analysis available."
@@ -843,6 +836,7 @@ export default function DashboardPage() {
                   >
                     Key Risks
                   </h3>
+
                   <InsightList
                     items={explanation.key_risks || []}
                     emptyText="No key risks available."
@@ -874,6 +868,7 @@ export default function DashboardPage() {
                   >
                     Recommended Actions
                   </h3>
+
                   <InsightList
                     items={explanation.recommended_actions || []}
                     emptyText="No recommended actions available."
@@ -897,6 +892,7 @@ export default function DashboardPage() {
                   >
                     Executive Interpretation
                   </h3>
+
                   <p
                     style={{
                       margin: 0,
