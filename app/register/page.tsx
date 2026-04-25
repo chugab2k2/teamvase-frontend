@@ -16,12 +16,10 @@ export default function RegisterPage() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successText, setSuccessText] = useState("");
 
   const handleRegister = async () => {
     setLoading(true);
     setError("");
-    setSuccessText("");
 
     try {
       if (!email.trim()) {
@@ -40,28 +38,45 @@ export default function RegisterPage() {
         throw new Error("Passwords do not match.");
       }
 
-      const res = await fetch(`${API}/auth/register`, {
+      const registerRes = await fetch(`${API}/auth/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: email.trim(),
           password,
         }),
       });
 
-      const data = await res.json();
+      const registerData = await registerRes.json();
 
-      if (!res.ok) {
-        throw new Error(data?.detail || data?.error || "Registration failed.");
+      if (!registerRes.ok) {
+        throw new Error(registerData?.detail || "Registration failed.");
       }
 
-      setSuccessText("Account created successfully. Redirecting to login...");
+      const loginRes = await fetch(`${API}/auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
 
-      setTimeout(() => {
-        router.push(`/login?next=${encodeURIComponent(nextUrl)}`);
-      }, 800);
+      const loginData = await loginRes.json();
+
+      if (!loginRes.ok) {
+        throw new Error(
+          loginData?.detail || "Account created, but automatic login failed."
+        );
+      }
+
+      localStorage.setItem("token", loginData.access_token);
+
+      router.push(nextUrl);
     } catch (err: any) {
       setError(err.message || "Registration failed.");
     } finally {
@@ -127,21 +142,11 @@ export default function RegisterPage() {
           style={inputStyle}
         />
 
-        <button
-          onClick={handleRegister}
-          disabled={loading}
-          style={buttonStyle}
-        >
+        <button onClick={handleRegister} disabled={loading} style={buttonStyle}>
           {loading ? "Creating account..." : "Create Account"}
         </button>
 
-        {error && (
-          <p style={{ color: "#dc2626", marginTop: 10 }}>{error}</p>
-        )}
-
-        {successText && (
-          <p style={{ color: "#16a34a", marginTop: 10 }}>{successText}</p>
-        )}
+        {error && <p style={{ color: "#dc2626", marginTop: 10 }}>{error}</p>}
 
         <p
           style={{
@@ -153,7 +158,11 @@ export default function RegisterPage() {
           Already have an account?{" "}
           <a
             href={`/login?next=${encodeURIComponent(nextUrl)}`}
-            style={{ color: "#2563eb", fontWeight: 700, textDecoration: "none" }}
+            style={{
+              color: "#2563eb",
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
           >
             Login
           </a>
