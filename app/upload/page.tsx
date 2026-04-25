@@ -23,32 +23,33 @@ export default function UploadPage() {
   const [successText, setSuccessText] = useState("");
   const [me, setMe] = useState<MeResponse | null>(null);
   const [loadingMe, setLoadingMe] = useState(true);
-
-  const loadMe = async () => {
-    try {
-      setLoadingMe(true);
-
-      const res = await apiFetch("/auth/me");
-      if (!res) {
-        throw new Error("No response from API.");
-      }
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data?.detail || data?.error || "Failed to load account usage.");
-      }
-
-      setMe(data);
-    } catch (err: any) {
-      console.error("LOAD /auth/me ERROR:", err);
-      setError(err?.message || "Failed to load account usage.");
-    } finally {
-      setLoadingMe(false);
-    }
-  };
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
+    const loadMe = async () => {
+      try {
+        setLoadingMe(true);
+
+        const res = await apiFetch("/auth/me");
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data?.detail || data?.error || "Failed to load account usage.");
+        }
+
+        setMe(data);
+
+        if ((data?.usage?.uploads_used ?? 0) === 0) {
+          setShowOnboarding(true);
+        }
+      } catch (err: any) {
+        console.error("LOAD /auth/me ERROR:", err);
+        setError(err?.message || "Failed to load account usage.");
+      } finally {
+        setLoadingMe(false);
+      }
+    };
+
     loadMe();
   }, []);
 
@@ -95,9 +96,7 @@ export default function UploadPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(
-          data?.detail || data?.error || "Upload failed. Please try again."
-        );
+        throw new Error(data?.detail || data?.error || "Upload failed. Please try again.");
       }
 
       const jobId = data?.job_id;
@@ -105,18 +104,27 @@ export default function UploadPage() {
         throw new Error("Upload succeeded but no job_id was returned.");
       }
 
-      await loadMe();
-
       setSuccessText("Upload successful. Redirecting to dashboard...");
-
       window.location.href = `/dashboard?job_id=${jobId}`;
     } catch (err: any) {
       console.error("UPLOAD ERROR:", err);
-      setError(err?.message || "Upload failed.");
 
-      if (String(err?.message || "").toLowerCase().includes("upload limit")) {
+      const message = err?.detail || err?.message || "Upload failed.";
+
+      if (String(message).toLowerCase().includes("failed to fetch")) {
+        setError("Upload failed. Please check your internet connection or try again with a smaller file.");
+      } else {
+        setError(message);
+      }
+
+      if (String(message).toLowerCase().includes("upload limit")) {
         try {
-          await loadMe();
+          const refreshRes = await apiFetch("/auth/me");
+          const refreshData = await refreshRes.json();
+
+          if (refreshRes.ok) {
+            setMe(refreshData);
+          }
         } catch (refreshErr) {
           console.error("REFRESH /auth/me AFTER LIMIT ERROR:", refreshErr);
         }
@@ -244,6 +252,62 @@ export default function UploadPage() {
           </div>
         </section>
 
+        {showOnboarding ? (
+          <section
+            style={{
+              background: "#ecfdf5",
+              border: "1px solid #10b981",
+              borderRadius: "20px",
+              padding: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              gap: "16px",
+              flexWrap: "wrap",
+              alignItems: "center",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 800,
+                  color: "#064e3b",
+                  marginBottom: "6px",
+                }}
+              >
+                Welcome to TeamVase AI Copilot
+              </div>
+
+              <div
+                style={{
+                  fontSize: "14px",
+                  color: "#065f46",
+                  lineHeight: 1.7,
+                }}
+              >
+                Start by uploading your first Primavera P6 `.xer` schedule. TeamVase will analyse
+                schedule health, open ends, negative float, risk drivers, and generate your first
+                project dashboard.
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowOnboarding(false)}
+              style={{
+                padding: "12px 16px",
+                borderRadius: "12px",
+                border: "1px solid #059669",
+                background: "#10b981",
+                color: "#ffffff",
+                fontWeight: 800,
+                cursor: "pointer",
+              }}
+            >
+              Got it
+            </button>
+          </section>
+        ) : null}
+
         {currentPlan === "free" ? (
           <section
             style={{
@@ -267,9 +331,7 @@ export default function UploadPage() {
                   marginBottom: "6px",
                 }}
               >
-                {limitReached
-                  ? "Free upload limit reached"
-                  : "You are on the Free plan"}
+                {limitReached ? "Free upload limit reached" : "You are on the Free plan"}
               </div>
 
               <div
@@ -362,49 +424,18 @@ export default function UploadPage() {
 
             <div style={{ display: "grid", gap: "16px" }}>
               <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                    color: "#64748b",
-                    marginBottom: "6px",
-                  }}
-                >
-                  Version
-                </label>
+                <label style={labelStyle}>Version</label>
 
                 <input
                   value={version}
                   onChange={(e) => setVersion(e.target.value)}
                   placeholder="Enter schedule version"
-                  style={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    padding: "14px 16px",
-                    borderRadius: "14px",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "15px",
-                  }}
+                  style={inputStyle}
                 />
               </div>
 
               <div>
-                <label
-                  style={{
-                    display: "block",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                    color: "#64748b",
-                    marginBottom: "6px",
-                  }}
-                >
-                  Primavera File
-                </label>
+                <label style={labelStyle}>Primavera File</label>
 
                 <input
                   type="file"
@@ -412,15 +443,22 @@ export default function UploadPage() {
                   onChange={(e) => setFile(e.target.files?.[0] || null)}
                   disabled={limitReached || uploading}
                   style={{
-                    width: "100%",
-                    boxSizing: "border-box",
-                    padding: "14px 16px",
-                    borderRadius: "14px",
-                    border: "1px solid #cbd5e1",
-                    fontSize: "15px",
+                    ...inputStyle,
                     background: limitReached ? "#f8fafc" : "#ffffff",
                   }}
                 />
+
+                {file ? (
+                  <div
+                    style={{
+                      marginTop: "8px",
+                      color: "#475569",
+                      fontSize: "13px",
+                    }}
+                  >
+                    Selected file: <strong>{file.name}</strong>
+                  </div>
+                ) : null}
               </div>
 
               <button
@@ -430,7 +468,8 @@ export default function UploadPage() {
                   padding: "14px 18px",
                   borderRadius: "14px",
                   border: "1px solid #2563eb",
-                  background: uploading || loadingMe || limitReached ? "#93c5fd" : "#2563eb",
+                  background:
+                    uploading || loadingMe || limitReached ? "#93c5fd" : "#2563eb",
                   color: "#ffffff",
                   fontWeight: 800,
                   fontSize: "15px",
@@ -465,14 +504,14 @@ export default function UploadPage() {
                 fontWeight: 800,
               }}
             >
-              Plan Benefits
+              How It Works
             </h2>
 
             <div style={{ display: "grid", gap: "12px" }}>
-              <div style={featureItem}>Upload Primavera P6 `.xer` files</div>
-              <div style={featureItem}>Instant schedule analysis</div>
-              <div style={featureItem}>Portfolio and report workflows</div>
-              <div style={featureItem}>Billing-backed upgrade path</div>
+              <div style={featureItem}>1. Upload Primavera P6 `.xer` file</div>
+              <div style={featureItem}>2. TeamVase parses and analyses the schedule</div>
+              <div style={featureItem}>3. Review health score, float, logic, and risks</div>
+              <div style={featureItem}>4. Upgrade to Pro for AI explanation and comparison</div>
             </div>
 
             <div
@@ -508,7 +547,7 @@ export default function UploadPage() {
               >
                 {currentPlan === "pro"
                   ? "Your account has unlimited upload access and unlimited saved report capacity."
-                  : "Pro unlocks unlimited uploads and removes the free plan ceiling from your working workflow."}
+                  : "Pro unlocks unlimited uploads, AI Explanation Engine, comparison insight, and unlimited saved reports."}
               </div>
 
               {currentPlan !== "pro" ? (
@@ -536,6 +575,25 @@ export default function UploadPage() {
     </div>
   );
 }
+
+const labelStyle: React.CSSProperties = {
+  display: "block",
+  fontSize: "12px",
+  fontWeight: 700,
+  textTransform: "uppercase",
+  letterSpacing: "0.04em",
+  color: "#64748b",
+  marginBottom: "6px",
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  boxSizing: "border-box",
+  padding: "14px 16px",
+  borderRadius: "14px",
+  border: "1px solid #cbd5e1",
+  fontSize: "15px",
+};
 
 const featureItem: React.CSSProperties = {
   fontSize: "14px",
