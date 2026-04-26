@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { API } from "@/lib/api";
+import { API, apiFetch } from "@/lib/api";
 
 type MeResponse = {
   id: number;
@@ -35,32 +35,13 @@ function FeatureRow({
         alignItems: "center",
       }}
     >
-      <div
-        style={{
-          fontSize: "14px",
-          fontWeight: 700,
-          color: "#0f172a",
-        }}
-      >
+      <div style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a" }}>
         {feature}
       </div>
 
-      <div
-        style={{
-          fontSize: "14px",
-          color: "#475569",
-        }}
-      >
-        {free}
-      </div>
+      <div style={{ fontSize: "14px", color: "#475569" }}>{free}</div>
 
-      <div
-        style={{
-          fontSize: "14px",
-          color: "#166534",
-          fontWeight: 700,
-        }}
-      >
+      <div style={{ fontSize: "14px", color: "#166534", fontWeight: 700 }}>
         {pro}
       </div>
     </div>
@@ -169,9 +150,7 @@ export default function PricingPage() {
         setError("");
 
         const token =
-          typeof window !== "undefined"
-            ? localStorage.getItem("token")
-            : null;
+          typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
         if (!token) {
           setMe(null);
@@ -221,31 +200,19 @@ export default function PricingPage() {
       setError("");
 
       const token =
-        typeof window !== "undefined"
-          ? localStorage.getItem("token")
-          : null;
+        typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
       if (!token) {
         window.location.href = "/login?next=/billing";
         return;
       }
 
-      const res = await fetch(`${API}/billing/create-checkout-session`, {
+      const res = await apiFetch("/billing/create-checkout-session", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify({}),
       });
 
       const data = await res.json();
-
-      if (res.status === 401) {
-        localStorage.removeItem("token");
-        window.location.href = "/login?next=/billing";
-        return;
-      }
 
       if (!res.ok) {
         throw new Error(data?.detail || data?.error || "Unable to start checkout.");
@@ -258,7 +225,7 @@ export default function PricingPage() {
       window.location.href = data.url;
     } catch (err: any) {
       console.error("PRICING CHECKOUT ERROR:", err);
-      setError(err?.message || "Unable to start checkout.");
+      setError(err?.detail || err?.message || "Unable to start checkout.");
       setCheckoutLoading(false);
     }
   };
@@ -331,9 +298,9 @@ export default function PricingPage() {
                   lineHeight: 1.8,
                 }}
               >
-                Choose the plan that fits your project controls workflow. Start free,
-                then unlock advanced AI analysis, unlimited capacity, and stronger
-                executive reporting with Pro.
+                Choose the plan that fits your project controls workflow. Start
+                free, then unlock advanced AI analysis, unlimited capacity, and
+                stronger executive reporting with Pro.
               </p>
             </div>
 
@@ -469,7 +436,9 @@ export default function PricingPage() {
                 color: currentPlan === "pro" ? "#1d4ed8" : "#ffffff",
                 fontWeight: 800,
                 cursor:
-                  currentPlan === "pro" || checkoutLoading ? "not-allowed" : "pointer",
+                  currentPlan === "pro" || checkoutLoading
+                    ? "not-allowed"
+                    : "pointer",
               }}
             >
               {currentPlan === "pro"
@@ -506,6 +475,7 @@ export default function PricingPage() {
             >
               Feature Comparison
             </h2>
+
             <p
               style={{
                 margin: "8px 0 0",
@@ -541,7 +511,11 @@ export default function PricingPage() {
           <FeatureRow feature="AI Explanation Engine" free="Locked" pro="Included" />
           <FeatureRow feature="AI Compare insight" free="Locked" pro="Included" />
           <FeatureRow feature="Saved reports" free="Up to 3" pro="Unlimited" />
-          <FeatureRow feature="Executive workflow continuity" free="Limited" pro="Included" />
+          <FeatureRow
+            feature="Executive workflow continuity"
+            free="Limited"
+            pro="Included"
+          />
         </section>
       </div>
     </div>
