@@ -21,11 +21,13 @@ export default function BillingSuccessPage() {
 
       if (!token) {
         setNeedsLogin(true);
-        setStatus("Your payment was successful. Please log in again to refresh your account.");
+        setStatus(
+          "Your payment was successful. Please log in again to refresh your Pro access."
+        );
         return;
       }
 
-      for (let attempt = 1; attempt <= 6; attempt++) {
+      for (let attempt = 1; attempt <= 8; attempt++) {
         try {
           const res = await fetch(`${API}/auth/me`, {
             headers: {
@@ -36,7 +38,9 @@ export default function BillingSuccessPage() {
           if (res.status === 401) {
             localStorage.removeItem("token");
             setNeedsLogin(true);
-            setStatus("Your payment was successful. Please log in again to refresh your account.");
+            setStatus(
+              "Your payment was successful. Please log in again to refresh your Pro access."
+            );
             return;
           }
 
@@ -115,7 +119,9 @@ export default function BillingSuccessPage() {
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
           {needsLogin ? (
             <button
-              onClick={() => (window.location.href = "/login?next=/billing")}
+              onClick={() => {
+                window.location.href = "/login?next=/billing";
+              }}
               style={primaryButton}
             >
               Log in to Continue
@@ -123,14 +129,18 @@ export default function BillingSuccessPage() {
           ) : (
             <>
               <button
-                onClick={() => (window.location.href = "/billing")}
+                onClick={() => {
+                  window.location.href = "/billing";
+                }}
                 style={primaryButton}
               >
                 Go to Billing
               </button>
 
               <button
-                onClick={() => (window.location.href = "/upload")}
+                onClick={() => {
+                  window.location.href = "/upload";
+                }}
                 style={secondaryButton}
               >
                 Go to Upload

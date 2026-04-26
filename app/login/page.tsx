@@ -1,32 +1,49 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { API } from "@/lib/api";
 
+function getSafeNext(nextUrl: string | null) {
+  if (!nextUrl) return "/upload";
+
+  if (!nextUrl.startsWith("/")) return "/upload";
+  if (nextUrl.startsWith("//")) return "/upload";
+
+  return nextUrl;
+}
+
 export default function LoginPage() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const nextUrl = searchParams.get("next") || "/upload";
+  const nextUrl = getSafeNext(searchParams.get("next"));
 
   const handleLogin = async () => {
     setLoading(true);
     setError("");
 
     try {
+      if (!email.trim()) {
+        throw new Error("Please enter your email.");
+      }
+
+      if (!password.trim()) {
+        throw new Error("Please enter your password.");
+      }
+
       const res = await fetch(`${API}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email,
+          email: email.trim(),
           password,
         }),
       });
@@ -39,10 +56,9 @@ export default function LoginPage() {
 
       localStorage.setItem("token", data.access_token);
 
-      router.push(nextUrl);
+      window.location.href = nextUrl;
     } catch (err: any) {
       setError(err.message || "Login failed");
-    } finally {
       setLoading(false);
     }
   };
@@ -82,19 +98,18 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           style={inputStyle}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              handleLogin();
+            }
+          }}
         />
 
-        <button
-          onClick={handleLogin}
-          disabled={loading}
-          style={buttonStyle}
-        >
+        <button onClick={handleLogin} disabled={loading} style={buttonStyle}>
           {loading ? "Logging in..." : "Login"}
         </button>
 
-        {error && (
-          <p style={{ color: "red", marginTop: 10 }}>{error}</p>
-        )}
+        {error ? <p style={{ color: "red", marginTop: 10 }}>{error}</p> : null}
 
         <p
           style={{
@@ -106,7 +121,11 @@ export default function LoginPage() {
           Don’t have an account yet?{" "}
           <a
             href={`/register?next=${encodeURIComponent(nextUrl)}`}
-            style={{ color: "#2563eb", fontWeight: 700, textDecoration: "none" }}
+            style={{
+              color: "#2563eb",
+              fontWeight: 700,
+              textDecoration: "none",
+            }}
           >
             Create account
           </a>
