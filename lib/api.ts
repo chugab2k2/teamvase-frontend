@@ -13,6 +13,12 @@ export class ApiError extends Error {
   }
 }
 
+function buildApiUrl(url: string) {
+  const base = API.replace(/\/+$/, "");
+  const path = url.startsWith("/") ? url : `/${url}`;
+  return `${base}${path}`;
+}
+
 export async function apiFetch(
   url: string,
   options: RequestInit = {}
@@ -34,7 +40,7 @@ export async function apiFetch(
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API}${url}`, {
+  const res = await fetch(buildApiUrl(url), {
     ...options,
     headers,
   });
@@ -44,6 +50,7 @@ export async function apiFetch(
       localStorage.removeItem("token");
       window.location.href = "/login";
     }
+
     throw new ApiError(401, "Unauthorized");
   }
 
