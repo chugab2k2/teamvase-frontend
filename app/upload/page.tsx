@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { apiFetch } from "@/lib/api";
+import { ApiError, apiFetch } from "@/lib/api";
 
 type MeResponse = {
   id: number;
@@ -15,6 +15,121 @@ type MeResponse = {
   };
 };
 
+function UpgradeModal({
+  message,
+  onClose,
+}: {
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 999,
+        background: "rgba(15, 23, 42, 0.72)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "24px",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "460px",
+          background: "#ffffff",
+          borderRadius: "24px",
+          padding: "28px",
+          boxShadow: "0 24px 70px rgba(15, 23, 42, 0.35)",
+          border: "1px solid #e5e7eb",
+        }}
+      >
+        <div
+          style={{
+            display: "inline-flex",
+            padding: "8px 12px",
+            borderRadius: "999px",
+            background: "#fee2e2",
+            color: "#991b1b",
+            fontSize: "12px",
+            fontWeight: 900,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            marginBottom: "16px",
+          }}
+        >
+          Upgrade Required
+        </div>
+
+        <h2
+          style={{
+            margin: 0,
+            fontSize: "26px",
+            fontWeight: 900,
+            color: "#0f172a",
+          }}
+        >
+          Continue with Pro
+        </h2>
+
+        <p
+          style={{
+            margin: "12px 0 0",
+            color: "#475569",
+            lineHeight: 1.7,
+            fontSize: "15px",
+          }}
+        >
+          {message || "You’ve reached the limit on your current plan. Upgrade to Pro for unlimited uploads and premium AI features."}
+        </p>
+
+        <div
+          style={{
+            marginTop: "22px",
+            display: "flex",
+            gap: "12px",
+            flexWrap: "wrap",
+          }}
+        >
+          <button
+            onClick={() => {
+              window.location.href = "/pricing";
+            }}
+            style={{
+              padding: "13px 18px",
+              borderRadius: "14px",
+              border: "1px solid #2563eb",
+              background: "#2563eb",
+              color: "#ffffff",
+              fontWeight: 900,
+              cursor: "pointer",
+            }}
+          >
+            Upgrade to Pro
+          </button>
+
+          <button
+            onClick={onClose}
+            style={{
+              padding: "13px 18px",
+              borderRadius: "14px",
+              border: "1px solid #cbd5e1",
+              background: "#ffffff",
+              color: "#0f172a",
+              fontWeight: 800,
+              cursor: "pointer",
+            }}
+          >
+            Not now
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
   const [version, setVersion] = useState("baseline 01");
@@ -24,32 +139,34 @@ export default function UploadPage() {
   const [me, setMe] = useState<MeResponse | null>(null);
   const [loadingMe, setLoadingMe] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [upgradeRequired, setUpgradeRequired] = useState(false);
+  const [upgradeMessage, setUpgradeMessage] = useState("");
+
+  const loadMe = async () => {
+    try {
+      setLoadingMe(true);
+
+      const res = await apiFetch("/auth/me");
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.detail || data?.error || "Failed to load account usage.");
+      }
+
+      setMe(data);
+
+      if ((data?.usage?.uploads_used ?? 0) === 0) {
+        setShowOnboarding(true);
+      }
+    } catch (err: any) {
+      console.error("LOAD /auth/me ERROR:", err);
+      setError(err?.message || "Failed to load account usage.");
+    } finally {
+      setLoadingMe(false);
+    }
+  };
 
   useEffect(() => {
-    const loadMe = async () => {
-      try {
-        setLoadingMe(true);
-
-        const res = await apiFetch("/auth/me");
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data?.detail || data?.error || "Failed to load account usage.");
-        }
-
-        setMe(data);
-
-        if ((data?.usage?.uploads_used ?? 0) === 0) {
-          setShowOnboarding(true);
-        }
-      } catch (err: any) {
-        console.error("LOAD /auth/me ERROR:", err);
-        setError(err?.message || "Failed to load account usage.");
-      } finally {
-        setLoadingMe(false);
-      }
-    };
-
     loadMe();
   }, []);
 
@@ -61,6 +178,24 @@ export default function UploadPage() {
     if (uploadLimit === null) return false;
     return uploadsUsed >= uploadLimit;
   }, [uploadsUsed, uploadLimit]);
+
+  const nearLimit = useMemo(() => {
+    if (uploadLimit === null || uploadLimit === 0) return false;
+    return uploadsUsed / uploadLimit >= 0.8 && uploadsUsed < uploadLimit;
+  }, [uploadsUsed, uploadLimit]);
+
+  const usageText =
+    uploadLimit === null
+      ? `${uploadsUsed} uploads used · Unlimited`
+      : `${uploadsUsed}/${uploadLimit} uploads used`;
+
+  const openUpgradeModal = (message?: string) => {
+    setUpgradeMessage(
+      message ||
+        "You’ve reached your free upload limit. Upgrade to Pro for unlimited uploads, AI explanation, comparison insights, and unlimited saved reports."
+    );
+    setUpgradeRequired(true);
+  };
 
   const handleUpload = async () => {
     try {
@@ -78,7 +213,7 @@ export default function UploadPage() {
       }
 
       if (limitReached) {
-        setError("You’ve reached your free upload limit. Upgrade to Pro for unlimited uploads.");
+        openUpgradeModal();
         return;
       }
 
@@ -104,10 +239,18 @@ export default function UploadPage() {
         throw new Error("Upload succeeded but no job_id was returned.");
       }
 
+      await loadMe();
+
       setSuccessText("Upload successful. Redirecting to dashboard...");
       window.location.href = `/dashboard?job_id=${jobId}`;
     } catch (err: any) {
       console.error("UPLOAD ERROR:", err);
+
+      if (err instanceof ApiError && err.status === 403) {
+        openUpgradeModal(err.detail);
+        await loadMe();
+        return;
+      }
 
       const message = err?.detail || err?.message || "Upload failed.";
 
@@ -118,16 +261,8 @@ export default function UploadPage() {
       }
 
       if (String(message).toLowerCase().includes("upload limit")) {
-        try {
-          const refreshRes = await apiFetch("/auth/me");
-          const refreshData = await refreshRes.json();
-
-          if (refreshRes.ok) {
-            setMe(refreshData);
-          }
-        } catch (refreshErr) {
-          console.error("REFRESH /auth/me AFTER LIMIT ERROR:", refreshErr);
-        }
+        openUpgradeModal(message);
+        await loadMe();
       }
     } finally {
       setUploading(false);
@@ -142,6 +277,13 @@ export default function UploadPage() {
         padding: "32px",
       }}
     >
+      {upgradeRequired ? (
+        <UpgradeModal
+          message={upgradeMessage}
+          onClose={() => setUpgradeRequired(false)}
+        />
+      ) : null}
+
       <div
         style={{
           maxWidth: "1200px",
@@ -242,11 +384,7 @@ export default function UploadPage() {
                   color: "#e2e8f0",
                 }}
               >
-                Uploads used:{" "}
-                <strong>
-                  {loadingMe ? "..." : uploadsUsed} /{" "}
-                  {loadingMe ? "..." : uploadLimit === null ? "Unlimited" : uploadLimit}
-                </strong>
+                Uploads used: <strong>{loadingMe ? "..." : usageText}</strong>
               </div>
             </div>
           </div>
@@ -311,8 +449,12 @@ export default function UploadPage() {
         {currentPlan === "free" ? (
           <section
             style={{
-              background: limitReached ? "#fff7ed" : "#eff6ff",
-              border: limitReached ? "1px solid #fdba74" : "1px solid #bfdbfe",
+              background: limitReached ? "#fff7ed" : nearLimit ? "#fef3c7" : "#eff6ff",
+              border: limitReached
+                ? "1px solid #fdba74"
+                : nearLimit
+                ? "1px solid #fcd34d"
+                : "1px solid #bfdbfe",
               borderRadius: "20px",
               padding: "20px",
               display: "flex",
@@ -331,7 +473,11 @@ export default function UploadPage() {
                   marginBottom: "6px",
                 }}
               >
-                {limitReached ? "Free upload limit reached" : "You are on the Free plan"}
+                {limitReached
+                  ? "Free upload limit reached"
+                  : nearLimit
+                  ? "You’re close to your free upload limit"
+                  : "You are on the Free plan"}
               </div>
 
               <div
@@ -343,7 +489,9 @@ export default function UploadPage() {
               >
                 {limitReached
                   ? "You’ve used all free uploads available on your plan. Upgrade to Pro to continue uploading schedules."
-                  : "Free users can upload up to 3 schedules. Upgrade to Pro for unlimited uploads and uninterrupted analysis workflow."}
+                  : nearLimit
+                  ? "You are almost out of free uploads. Upgrade now to keep your project analysis workflow uninterrupted."
+                  : "Free users can upload up to 3 schedules. Upgrade to Pro for unlimited uploads and premium AI decision support."}
               </div>
             </div>
 
@@ -357,7 +505,7 @@ export default function UploadPage() {
                 border: "1px solid #2563eb",
                 background: "#2563eb",
                 color: "#ffffff",
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: "pointer",
               }}
             >
@@ -397,7 +545,7 @@ export default function UploadPage() {
         <section
           style={{
             display: "grid",
-            gridTemplateColumns: "1.15fr 0.85fr",
+            gridTemplateColumns: "minmax(0, 1.15fr) minmax(320px, 0.85fr)",
             gap: "24px",
           }}
         >
@@ -483,6 +631,24 @@ export default function UploadPage() {
                   ? "Uploading..."
                   : "Upload and Analyze"}
               </button>
+
+              {limitReached ? (
+                <button
+                  onClick={() => openUpgradeModal()}
+                  style={{
+                    padding: "14px 18px",
+                    borderRadius: "14px",
+                    border: "1px solid #dc2626",
+                    background: "#dc2626",
+                    color: "#ffffff",
+                    fontWeight: 800,
+                    fontSize: "15px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Unlock Unlimited Uploads
+                </button>
+              ) : null}
             </div>
           </div>
 
@@ -561,11 +727,11 @@ export default function UploadPage() {
                     border: "1px solid #2563eb",
                     background: "#2563eb",
                     color: "#ffffff",
-                    fontWeight: 700,
+                    fontWeight: 800,
                     cursor: "pointer",
                   }}
                 >
-                  View Pricing
+                  View Pro Plan
                 </button>
               ) : null}
             </div>
@@ -579,7 +745,7 @@ export default function UploadPage() {
 const labelStyle: React.CSSProperties = {
   display: "block",
   fontSize: "12px",
-  fontWeight: 700,
+  fontWeight: 800,
   textTransform: "uppercase",
   letterSpacing: "0.04em",
   color: "#64748b",

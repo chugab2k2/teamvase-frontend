@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import { apiFetch } from "@/lib/api";
 
 const navItems = [
   { href: "/", label: "Upload" },
@@ -10,23 +12,114 @@ const navItems = [
   { href: "/reports", label: "Reports" },
 ];
 
+type MeResponse = {
+  id: number;
+  email: string;
+  plan: string;
+  usage?: {
+    uploads_used: number;
+    upload_limit: number | null;
+    reports_used: number;
+    report_limit: number | null;
+  };
+};
+
 function isAuthPage(pathname: string) {
   return pathname === "/login" || pathname === "/register";
 }
 
 function isDetailPage(pathname: string) {
-  return pathname.startsWith("/dashboard") || pathname.startsWith("/compare") || pathname.startsWith("/reports/");
+  return (
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/compare") ||
+    pathname.startsWith("/reports/")
+  );
 }
 
-export default function AppShell({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function UsageBadge({ me }: { me: MeResponse | null }) {
+  const plan = String(me?.plan || "free").toLowerCase();
+  const uploadsUsed = me?.usage?.uploads_used ?? 0;
+  const uploadLimit = me?.usage?.upload_limit ?? null;
+
+  if (!me) return null;
+
+  if (plan === "pro" || uploadLimit === null) {
+    return (
+      <div
+        style={{
+          padding: "9px 12px",
+          borderRadius: "999px",
+          background: "#dcfce7",
+          color: "#166534",
+          border: "1px solid #86efac",
+          fontWeight: 800,
+          fontSize: 12,
+          whiteSpace: "nowrap",
+        }}
+      >
+        PRO · Unlimited uploads
+      </div>
+    );
+  }
+
+  const ratio = uploadLimit > 0 ? uploadsUsed / uploadLimit : 0;
+  const nearLimit = ratio >= 0.8;
+  const limitReached = uploadsUsed >= uploadLimit;
+
+  return (
+    <div
+      style={{
+        padding: "9px 12px",
+        borderRadius: "999px",
+        background: limitReached ? "#fee2e2" : nearLimit ? "#fef3c7" : "#e0f2fe",
+        color: limitReached ? "#991b1b" : nearLimit ? "#92400e" : "#075985",
+        border: limitReached
+          ? "1px solid #fca5a5"
+          : nearLimit
+          ? "1px solid #fcd34d"
+          : "1px solid #7dd3fc",
+        fontWeight: 800,
+        fontSize: 12,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {limitReached
+        ? `Limit reached · ${uploadsUsed}/${uploadLimit}`
+        : nearLimit
+        ? `Upgrade soon · ${uploadsUsed}/${uploadLimit}`
+        : `Free · ${uploadsUsed}/${uploadLimit} uploads`}
+    </div>
+  );
+}
+
+export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
+  const [me, setMe] = useState<MeResponse | null>(null);
+
   const hideShell = isAuthPage(pathname);
+
+  const activePlan = useMemo(() => String(me?.plan || "free").toLowerCase(), [me]);
+
+  useEffect(() => {
+    if (hideShell) return;
+
+    const loadMe = async () => {
+      try {
+        const res = await apiFetch("/auth/me");
+        const data = await res.json();
+
+        if (res.ok) {
+          setMe(data);
+        }
+      } catch (err) {
+        console.error("APP SHELL /auth/me ERROR:", err);
+      }
+    };
+
+    loadMe();
+  }, [hideShell, pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -67,7 +160,14 @@ export default function AppShell({
             flexWrap: "wrap",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 16,
+              flexWrap: "wrap",
+            }}
+          >
             <Link
               href="/"
               style={{
@@ -133,7 +233,26 @@ export default function AppShell({
             </nav>
           </div>
 
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+            <UsageBadge me={me} />
+
+            {activePlan !== "pro" ? (
+              <button
+                onClick={() => router.push("/pricing")}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 12,
+                  border: "1px solid #93c5fd",
+                  background: "#dbeafe",
+                  color: "#1d4ed8",
+                  fontWeight: 800,
+                  cursor: "pointer",
+                }}
+              >
+                Upgrade
+              </button>
+            ) : null}
+
             <button
               onClick={() => router.push("/compare")}
               style={{
