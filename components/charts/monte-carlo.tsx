@@ -21,10 +21,56 @@ type MarkerSet = {
   p90?: number | null;
 };
 
+type MonteCarloChartProps = {
+  data: any[];
+  markers?: MarkerSet;
+
+  // Backward compatibility for older pages like app/results/page.tsx
+  p10?: number | null;
+  p30?: number | null;
+  p50?: number | null;
+  p70?: number | null;
+  p80?: number | null;
+  p90?: number | null;
+};
+
 function formatValue(value: any) {
   const n = Number(value);
   if (Number.isNaN(n)) return "N/A";
   return n.toFixed(2);
+}
+
+function normalizeChartData(data: any[]) {
+  if (!Array.isArray(data)) return [];
+
+  return data
+    .map((item) => {
+      if (!item || typeof item !== "object") return null;
+
+      if (item.x !== undefined && item.y !== undefined) {
+        return {
+          x: Number(item.x),
+          y: Number(item.y),
+        };
+      }
+
+      if (
+        item.bin_start !== undefined &&
+        item.bin_end !== undefined &&
+        item.count !== undefined
+      ) {
+        return {
+          x: (Number(item.bin_start) + Number(item.bin_end)) / 2,
+          y: Number(item.count),
+        };
+      }
+
+      return null;
+    })
+    .filter((item) => {
+      if (!item) return false;
+      return !Number.isNaN(item.x) && !Number.isNaN(item.y);
+    });
 }
 
 function CustomTooltip({ active, payload, label }: any) {
@@ -71,7 +117,14 @@ function MarkerCard({
         background: "#ffffff",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          marginBottom: 8,
+        }}
+      >
         <span
           style={{
             width: 10,
@@ -81,16 +134,36 @@ function MarkerCard({
             display: "inline-block",
           }}
         />
-        <span style={{ fontSize: 13, fontWeight: 900, color: "#0f172a" }}>
+
+        <span
+          style={{
+            fontSize: 13,
+            fontWeight: 900,
+            color: "#0f172a",
+          }}
+        >
           {label}
         </span>
       </div>
 
-      <div style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", marginBottom: 6 }}>
+      <div
+        style={{
+          fontSize: 22,
+          fontWeight: 900,
+          color: "#0f172a",
+          marginBottom: 6,
+        }}
+      >
         {value === null || value === undefined ? "N/A" : formatValue(value)}
       </div>
 
-      <div style={{ fontSize: 12, lineHeight: 1.5, color: "#64748b" }}>
+      <div
+        style={{
+          fontSize: 12,
+          lineHeight: 1.5,
+          color: "#64748b",
+        }}
+      >
         {description}
       </div>
     </div>
@@ -100,20 +173,25 @@ function MarkerCard({
 export default function MonteCarloChart({
   data,
   markers,
-}: {
-  data: any[];
-  markers?: MarkerSet;
-}) {
-  if (!data || data.length === 0) {
+  p10,
+  p30,
+  p50,
+  p70,
+  p80,
+  p90,
+}: MonteCarloChartProps) {
+  const chartData = normalizeChartData(data);
+
+  if (!chartData || chartData.length === 0) {
     return <p>No Monte Carlo data</p>;
   }
 
-  const p10 = markers?.p10 ?? null;
-  const p30 = markers?.p30 ?? null;
-  const p50 = markers?.p50 ?? null;
-  const p70 = markers?.p70 ?? null;
-  const p80 = markers?.p80 ?? null;
-  const p90 = markers?.p90 ?? null;
+  const markerP10 = markers?.p10 ?? p10 ?? null;
+  const markerP30 = markers?.p30 ?? p30 ?? null;
+  const markerP50 = markers?.p50 ?? p50 ?? null;
+  const markerP70 = markers?.p70 ?? p70 ?? null;
+  const markerP80 = markers?.p80 ?? p80 ?? null;
+  const markerP90 = markers?.p90 ?? p90 ?? null;
 
   return (
     <div style={{ background: "#ffffff", borderRadius: 12 }}>
@@ -151,11 +229,13 @@ export default function MonteCarloChart({
           </p>
 
           <ResponsiveContainer width="100%" height={360}>
-            <ComposedChart data={data}>
+            <ComposedChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
 
               <XAxis
                 dataKey="x"
+                type="number"
+                domain={["dataMin", "dataMax"]}
                 tick={{ fontSize: 12 }}
                 tickFormatter={(v) => formatValue(v)}
               />
@@ -174,36 +254,36 @@ export default function MonteCarloChart({
                 dot={false}
               />
 
-              {p10 !== null ? (
+              {markerP10 !== null ? (
                 <ReferenceLine
-                  x={p10}
+                  x={markerP10}
                   stroke="#16a34a"
                   strokeWidth={2}
                   label={{ value: "P10", position: "top", fill: "#16a34a" }}
                 />
               ) : null}
 
-              {p50 !== null ? (
+              {markerP50 !== null ? (
                 <ReferenceLine
-                  x={p50}
+                  x={markerP50}
                   stroke="#2563eb"
                   strokeWidth={2}
                   label={{ value: "P50", position: "top", fill: "#2563eb" }}
                 />
               ) : null}
 
-              {p80 !== null ? (
+              {markerP80 !== null ? (
                 <ReferenceLine
-                  x={p80}
+                  x={markerP80}
                   stroke="#f59e0b"
                   strokeWidth={2}
                   label={{ value: "P80", position: "top", fill: "#f59e0b" }}
                 />
               ) : null}
 
-              {p90 !== null ? (
+              {markerP90 !== null ? (
                 <ReferenceLine
-                  x={p90}
+                  x={markerP90}
                   stroke="#dc2626"
                   strokeWidth={2}
                   label={{ value: "P90", position: "top", fill: "#dc2626" }}
@@ -225,8 +305,8 @@ export default function MonteCarloChart({
             }}
           >
             The orange bars show how often the simulated project finished within
-            each range. The blue line shows the shape of the finish distribution.
-            The vertical markers show key confidence positions used for
+            each range. The blue line shows the finish distribution shape. The
+            vertical markers show key confidence positions used for
             schedule-risk decisions.
           </div>
         </div>
@@ -268,42 +348,42 @@ export default function MonteCarloChart({
 
           <MarkerCard
             label="P10"
-            value={p10}
+            value={markerP10}
             color="#16a34a"
             description="Optimistic position. Only 10% of simulations finish by this point."
           />
 
           <MarkerCard
             label="P30"
-            value={p30}
+            value={markerP30}
             color="#22c55e"
             description="Early probable position. Useful for understanding the better-case range."
           />
 
           <MarkerCard
             label="P50"
-            value={p50}
+            value={markerP50}
             color="#2563eb"
             description="Median / realistic position. Half the simulations finish by this point."
           />
 
           <MarkerCard
             label="P70"
-            value={p70}
+            value={markerP70}
             color="#a855f7"
             description="Moderately conservative position. Useful for internal planning confidence."
           />
 
           <MarkerCard
             label="P80"
-            value={p80}
+            value={markerP80}
             color="#f59e0b"
             description="Safer management commitment position. 80% confidence level."
           />
 
           <MarkerCard
             label="P90"
-            value={p90}
+            value={markerP90}
             color="#dc2626"
             description="Conservative risk position. High-confidence finish allowance."
           />
