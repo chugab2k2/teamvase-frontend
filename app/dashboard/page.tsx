@@ -746,7 +746,17 @@ export default function DashboardPage() {
           >
             <div style={{ minHeight: "320px" }}>
               {monteCarloData.length > 0 ? (
-                <MonteCarloChart data={monteCarloData} />
+                <MonteCarloChart
+                  data={monteCarloData}
+                  markers={{
+                    p10: analysis?.p10,
+                    p30: analysis?.p30,
+                    p50: analysis?.p50,
+                    p70: analysis?.p70,
+                    p80: analysis?.p80,
+                    p90: analysis?.p90,
+                  }}
+                />
               ) : (
                 <p style={{ margin: 0, color: "#64748b" }}>
                   No Monte Carlo data available.
