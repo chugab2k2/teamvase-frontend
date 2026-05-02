@@ -24,8 +24,6 @@ type MarkerSet = {
 type MonteCarloChartProps = {
   data: any[];
   markers?: MarkerSet;
-
-  // Backward compatibility for older pages like app/results/page.tsx
   p10?: number | null;
   p30?: number | null;
   p50?: number | null;
@@ -43,14 +41,14 @@ function formatValue(value: any) {
 function normalizeChartData(data: any[]) {
   if (!Array.isArray(data)) return [];
 
-  return data
+  const rows = data
     .map((item) => {
       if (!item || typeof item !== "object") return null;
 
       if (item.x !== undefined && item.y !== undefined) {
         return {
           x: Number(item.x),
-          y: Number(item.y),
+          hits: Number(item.y),
         };
       }
 
@@ -61,7 +59,7 @@ function normalizeChartData(data: any[]) {
       ) {
         return {
           x: (Number(item.bin_start) + Number(item.bin_end)) / 2,
-          y: Number(item.count),
+          hits: Number(item.count),
         };
       }
 
@@ -69,12 +67,28 @@ function normalizeChartData(data: any[]) {
     })
     .filter((item) => {
       if (!item) return false;
-      return !Number.isNaN(item.x) && !Number.isNaN(item.y);
-    });
+      return !Number.isNaN(item.x) && !Number.isNaN(item.hits);
+    })
+    .sort((a, b) => a.x - b.x);
+
+  const totalHits = rows.reduce((sum, row) => sum + row.hits, 0);
+  let runningHits = 0;
+
+  return rows.map((row) => {
+    runningHits += row.hits;
+
+    return {
+      ...row,
+      cumulative: totalHits > 0 ? Number(((runningHits / totalHits) * 100).toFixed(2)) : 0,
+    };
+  });
 }
 
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload || payload.length === 0) return null;
+
+  const hits = payload.find((p: any) => p.dataKey === "hits")?.value;
+  const cumulative = payload.find((p: any) => p.dataKey === "cumulative")?.value;
 
   return (
     <div
@@ -90,8 +104,10 @@ function CustomTooltip({ active, payload, label }: any) {
         Finish point: {formatValue(label)}
       </div>
 
-      <div style={{ fontSize: 13, color: "#475569" }}>
-        Simulation hits: <strong>{payload?.[0]?.value ?? 0}</strong>
+      <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
+        Simulation hits: <strong>{hits ?? 0}</strong>
+        <br />
+        Cumulative probability: <strong>{cumulative ?? 0}%</strong>
       </div>
     </div>
   );
@@ -117,14 +133,7 @@ function MarkerCard({
         background: "#ffffff",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          marginBottom: 8,
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <span
           style={{
             width: 10,
@@ -134,36 +143,16 @@ function MarkerCard({
             display: "inline-block",
           }}
         />
-
-        <span
-          style={{
-            fontSize: 13,
-            fontWeight: 900,
-            color: "#0f172a",
-          }}
-        >
+        <span style={{ fontSize: 13, fontWeight: 900, color: "#0f172a" }}>
           {label}
         </span>
       </div>
 
-      <div
-        style={{
-          fontSize: 22,
-          fontWeight: 900,
-          color: "#0f172a",
-          marginBottom: 6,
-        }}
-      >
+      <div style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", marginBottom: 6 }}>
         {value === null || value === undefined ? "N/A" : formatValue(value)}
       </div>
 
-      <div
-        style={{
-          fontSize: 12,
-          lineHeight: 1.5,
-          color: "#64748b",
-        }}
-      >
+      <div style={{ fontSize: 12, lineHeight: 1.5, color: "#64748b" }}>
         {description}
       </div>
     </div>
@@ -204,28 +193,13 @@ export default function MonteCarloChart({
         }}
       >
         <div>
-          <h3
-            style={{
-              margin: "0 0 8px",
-              fontSize: 22,
-              fontWeight: 900,
-              color: "#0f172a",
-            }}
-          >
+          <h3 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 900, color: "#0f172a" }}>
             Integrated Monte Carlo Schedule Risk Analysis
           </h3>
 
-          <p
-            style={{
-              margin: "0 0 18px",
-              fontSize: 14,
-              color: "#64748b",
-              lineHeight: 1.6,
-            }}
-          >
-            Predicts possible completion outcomes and highlights confidence
-            points for optimistic, realistic, management, and conservative
-            finish positions.
+          <p style={{ margin: "0 0 18px", fontSize: 14, color: "#64748b", lineHeight: 1.6 }}>
+            Orange bars show frequency of simulated finishes. The blue curve shows cumulative
+            probability against the right-hand percentage axis.
           </p>
 
           <ResponsiveContainer width="100%" height={360}>
@@ -240,15 +214,45 @@ export default function MonteCarloChart({
                 tickFormatter={(v) => formatValue(v)}
               />
 
-              <YAxis tick={{ fontSize: 12 }} />
+              <YAxis
+                yAxisId="left"
+                tick={{ fontSize: 12 }}
+                label={{
+                  value: "Hits",
+                  angle: -90,
+                  position: "insideLeft",
+                  style: { textAnchor: "middle" },
+                }}
+              />
+
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={[0, 100]}
+                tick={{ fontSize: 12 }}
+                tickFormatter={(v) => `${v}%`}
+                label={{
+                  value: "Cumulative Probability",
+                  angle: 90,
+                  position: "insideRight",
+                  style: { textAnchor: "middle" },
+                }}
+              />
 
               <Tooltip content={<CustomTooltip />} />
 
-              <Bar dataKey="y" fill="#f97316" opacity={0.85} barSize={28} />
+              <Bar
+                yAxisId="left"
+                dataKey="hits"
+                fill="#f97316"
+                opacity={0.85}
+                barSize={28}
+              />
 
               <Line
+                yAxisId="right"
                 type="monotone"
-                dataKey="y"
+                dataKey="cumulative"
                 stroke="#2563eb"
                 strokeWidth={2}
                 dot={false}
@@ -304,10 +308,9 @@ export default function MonteCarloChart({
               lineHeight: 1.6,
             }}
           >
-            The orange bars show how often the simulated project finished within
-            each range. The blue line shows the finish distribution shape. The
-            vertical markers show key confidence positions used for
-            schedule-risk decisions.
+            The bars show how often the project finished within each simulated range. The blue
+            cumulative curve shows the probability of finishing by each point. P80 and P90 are
+            useful for safer management commitment dates.
           </div>
         </div>
 
@@ -322,71 +325,21 @@ export default function MonteCarloChart({
           }}
         >
           <div>
-            <h4
-              style={{
-                margin: "0 0 6px",
-                fontSize: 16,
-                fontWeight: 900,
-                color: "#0f172a",
-              }}
-            >
+            <h4 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 900, color: "#0f172a" }}>
               Confidence Ladder
             </h4>
 
-            <p
-              style={{
-                margin: "0 0 10px",
-                fontSize: 12,
-                lineHeight: 1.5,
-                color: "#64748b",
-              }}
-            >
-              Higher P-values represent safer, more conservative finish
-              positions.
+            <p style={{ margin: "0 0 10px", fontSize: 12, lineHeight: 1.5, color: "#64748b" }}>
+              Higher P-values represent safer, more conservative finish positions.
             </p>
           </div>
 
-          <MarkerCard
-            label="P10"
-            value={markerP10}
-            color="#16a34a"
-            description="Optimistic position. Only 10% of simulations finish by this point."
-          />
-
-          <MarkerCard
-            label="P30"
-            value={markerP30}
-            color="#22c55e"
-            description="Early probable position. Useful for understanding the better-case range."
-          />
-
-          <MarkerCard
-            label="P50"
-            value={markerP50}
-            color="#2563eb"
-            description="Median / realistic position. Half the simulations finish by this point."
-          />
-
-          <MarkerCard
-            label="P70"
-            value={markerP70}
-            color="#a855f7"
-            description="Moderately conservative position. Useful for internal planning confidence."
-          />
-
-          <MarkerCard
-            label="P80"
-            value={markerP80}
-            color="#f59e0b"
-            description="Safer management commitment position. 80% confidence level."
-          />
-
-          <MarkerCard
-            label="P90"
-            value={markerP90}
-            color="#dc2626"
-            description="Conservative risk position. High-confidence finish allowance."
-          />
+          <MarkerCard label="P10" value={markerP10} color="#16a34a" description="Optimistic position. 10% confidence level." />
+          <MarkerCard label="P30" value={markerP30} color="#22c55e" description="Early probable position. Better-case planning range." />
+          <MarkerCard label="P50" value={markerP50} color="#2563eb" description="Median / realistic position. 50% confidence level." />
+          <MarkerCard label="P70" value={markerP70} color="#a855f7" description="Moderately conservative position. Internal planning confidence." />
+          <MarkerCard label="P80" value={markerP80} color="#f59e0b" description="Safer management commitment position. 80% confidence level." />
+          <MarkerCard label="P90" value={markerP90} color="#dc2626" description="Conservative risk position. 90% confidence level." />
         </aside>
       </div>
     </div>
