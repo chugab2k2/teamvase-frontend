@@ -41,35 +41,37 @@ function formatValue(value: any) {
 function normalizeChartData(data: any[]) {
   if (!Array.isArray(data)) return [];
 
-  const rows = data
-    .map((item) => {
-      if (!item || typeof item !== "object") return null;
+  const rows: { x: number; hits: number }[] = [];
 
-      if (item.x !== undefined && item.y !== undefined) {
-        return {
-          x: Number(item.x),
-          hits: Number(item.y),
-        };
+  data.forEach((item) => {
+    if (!item || typeof item !== "object") return;
+
+    if (item.x !== undefined && item.y !== undefined) {
+      const x = Number(item.x);
+      const hits = Number(item.y);
+
+      if (!Number.isNaN(x) && !Number.isNaN(hits)) {
+        rows.push({ x, hits });
       }
 
-      if (
-        item.bin_start !== undefined &&
-        item.bin_end !== undefined &&
-        item.count !== undefined
-      ) {
-        return {
-          x: (Number(item.bin_start) + Number(item.bin_end)) / 2,
-          hits: Number(item.count),
-        };
-      }
+      return;
+    }
 
-      return null;
-    })
-    .filter((item) => {
-      if (!item) return false;
-      return !Number.isNaN(item.x) && !Number.isNaN(item.hits);
-    })
-    .sort((a, b) => a.x - b.x);
+    if (
+      item.bin_start !== undefined &&
+      item.bin_end !== undefined &&
+      item.count !== undefined
+    ) {
+      const x = (Number(item.bin_start) + Number(item.bin_end)) / 2;
+      const hits = Number(item.count);
+
+      if (!Number.isNaN(x) && !Number.isNaN(hits)) {
+        rows.push({ x, hits });
+      }
+    }
+  });
+
+  rows.sort((a, b) => a.x - b.x);
 
   const totalHits = rows.reduce((sum, row) => sum + row.hits, 0);
   let runningHits = 0;
@@ -79,7 +81,10 @@ function normalizeChartData(data: any[]) {
 
     return {
       ...row,
-      cumulative: totalHits > 0 ? Number(((runningHits / totalHits) * 100).toFixed(2)) : 0,
+      cumulative:
+        totalHits > 0
+          ? Number(((runningHits / totalHits) * 100).toFixed(2))
+          : 0,
     };
   });
 }
