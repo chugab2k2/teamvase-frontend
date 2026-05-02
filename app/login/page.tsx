@@ -37,13 +37,13 @@ export default function LoginPage() {
         throw new Error("Please enter your password.");
       }
 
-      const res = await fetch(`${API}/auth/login`, {
+      const res = await fetch(`${API.replace(/\/+$/, "")}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email.trim(),
+          email: email.trim().toLowerCase(),
           password,
         }),
       });
@@ -52,6 +52,10 @@ export default function LoginPage() {
 
       if (!res.ok) {
         throw new Error(data?.detail || "Invalid credentials");
+      }
+
+      if (!data?.access_token) {
+        throw new Error("Login succeeded but no access token was returned.");
       }
 
       localStorage.setItem("token", data.access_token);

@@ -19,6 +19,11 @@ function buildApiUrl(url: string) {
   return `${base}${path}`;
 }
 
+function getCurrentBrowserPath() {
+  if (typeof window === "undefined") return "/";
+  return `${window.location.pathname}${window.location.search || ""}`;
+}
+
 export async function apiFetch(
   url: string,
   options: RequestInit = {}
@@ -48,7 +53,9 @@ export async function apiFetch(
   if (res.status === 401) {
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
-      window.location.href = "/login";
+
+      const currentPath = getCurrentBrowserPath();
+      window.location.href = `/login?next=${encodeURIComponent(currentPath)}`;
     }
 
     throw new ApiError(401, "Unauthorized");
