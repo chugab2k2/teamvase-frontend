@@ -1,19 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { API } from "@/lib/api";
 
 function getSafeNext(nextUrl: string | null) {
   if (!nextUrl) return "/upload";
-
   if (!nextUrl.startsWith("/")) return "/upload";
   if (nextUrl.startsWith("//")) return "/upload";
-
   return nextUrl;
 }
 
-export default function LoginPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
 
   const [email, setEmail] = useState("");
@@ -29,13 +27,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      if (!email.trim()) {
-        throw new Error("Please enter your email.");
-      }
-
-      if (!password.trim()) {
-        throw new Error("Please enter your password.");
-      }
+      if (!email.trim()) throw new Error("Please enter your email.");
+      if (!password.trim()) throw new Error("Please enter your password.");
 
       const res = await fetch(`${API.replace(/\/+$/, "")}/auth/login`, {
         method: "POST",
@@ -59,7 +52,6 @@ export default function LoginPage() {
       }
 
       localStorage.setItem("token", data.access_token);
-
       window.location.href = nextUrl;
     } catch (err: any) {
       setError(err.message || "Login failed");
@@ -103,9 +95,7 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
           style={inputStyle}
           onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleLogin();
-            }
+            if (e.key === "Enter") handleLogin();
           }}
         />
 
@@ -115,13 +105,7 @@ export default function LoginPage() {
 
         {error ? <p style={{ color: "red", marginTop: 10 }}>{error}</p> : null}
 
-        <p
-          style={{
-            marginTop: 16,
-            fontSize: 14,
-            color: "#475569",
-          }}
-        >
+        <p style={{ marginTop: 16, fontSize: 14, color: "#475569" }}>
           Don’t have an account yet?{" "}
           <a
             href={`/register?next=${encodeURIComponent(nextUrl)}`}
@@ -136,6 +120,14 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 40 }}>Loading login...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }
 
