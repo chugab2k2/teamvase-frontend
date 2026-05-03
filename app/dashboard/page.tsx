@@ -755,6 +755,14 @@ export default function DashboardPage() {
                     p70: analysis?.p70,
                     p80: analysis?.p80,
                     p90: analysis?.p90,
+                    p10_date: analysis?.p10_date,
+                    p30_date: analysis?.p30_date,
+                    p50_date: analysis?.p50_date,
+                    p70_date: analysis?.p70_date,
+                    p80_date: analysis?.p80_date,
+                    p90_date: analysis?.p90_date,
+                    schedule_anchor_date: analysis?.schedule_anchor_date,
+                    calendar_basis: analysis?.calendar_basis,
                   }}
                 />
               ) : (

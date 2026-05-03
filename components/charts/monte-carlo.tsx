@@ -19,11 +19,22 @@ type MarkerSet = {
   p70?: number | null;
   p80?: number | null;
   p90?: number | null;
+
+  p10_date?: string | null;
+  p30_date?: string | null;
+  p50_date?: string | null;
+  p70_date?: string | null;
+  p80_date?: string | null;
+  p90_date?: string | null;
+
+  schedule_anchor_date?: string | null;
+  calendar_basis?: string | null;
 };
 
 type MonteCarloChartProps = {
   data: any[];
   markers?: MarkerSet;
+
   p10?: number | null;
   p30?: number | null;
   p50?: number | null;
@@ -36,6 +47,19 @@ function formatValue(value: any) {
   const n = Number(value);
   if (Number.isNaN(n)) return "N/A";
   return n.toFixed(2);
+}
+
+function formatDate(value?: string | null) {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  return date.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
 }
 
 function normalizeChartData(data: any[]) {
@@ -106,7 +130,7 @@ function CustomTooltip({ active, payload, label }: any) {
       }}
     >
       <div style={{ fontWeight: 800, color: "#0f172a", marginBottom: 6 }}>
-        Finish point: {formatValue(label)}
+        Finish duration point: {formatValue(label)} hrs
       </div>
 
       <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
@@ -120,12 +144,14 @@ function CustomTooltip({ active, payload, label }: any) {
 
 function MarkerCard({
   label,
-  value,
+  hours,
+  date,
   description,
   color,
 }: {
   label: string;
-  value?: number | null;
+  hours?: number | null;
+  date?: string | null;
   description: string;
   color: string;
 }) {
@@ -148,13 +174,26 @@ function MarkerCard({
             display: "inline-block",
           }}
         />
+
         <span style={{ fontSize: 13, fontWeight: 900, color: "#0f172a" }}>
           {label}
         </span>
       </div>
 
-      <div style={{ fontSize: 22, fontWeight: 900, color: "#0f172a", marginBottom: 6 }}>
-        {value === null || value === undefined ? "N/A" : formatValue(value)}
+      <div style={{ fontSize: 20, fontWeight: 900, color: "#0f172a" }}>
+        {formatDate(date)}
+      </div>
+
+      <div
+        style={{
+          marginTop: 4,
+          marginBottom: 8,
+          fontSize: 12,
+          color: "#64748b",
+          fontWeight: 700,
+        }}
+      >
+        {hours === null || hours === undefined ? "N/A hrs" : `${formatValue(hours)} hrs`}
       </div>
 
       <div style={{ fontSize: 12, lineHeight: 1.5, color: "#64748b" }}>
@@ -192,19 +231,34 @@ export default function MonteCarloChart({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "minmax(0, 1fr) 280px",
+          gridTemplateColumns: "minmax(0, 1fr) 300px",
           gap: 20,
           alignItems: "stretch",
         }}
       >
         <div>
-          <h3 style={{ margin: "0 0 8px", fontSize: 22, fontWeight: 900, color: "#0f172a" }}>
+          <h3
+            style={{
+              margin: "0 0 8px",
+              fontSize: 22,
+              fontWeight: 900,
+              color: "#0f172a",
+            }}
+          >
             Integrated Monte Carlo Schedule Risk Analysis
           </h3>
 
-          <p style={{ margin: "0 0 18px", fontSize: 14, color: "#64748b", lineHeight: 1.6 }}>
-            Orange bars show frequency of simulated finishes. The blue curve shows cumulative
-            probability against the right-hand percentage axis.
+          <p
+            style={{
+              margin: "0 0 18px",
+              fontSize: 14,
+              color: "#64748b",
+              lineHeight: 1.6,
+            }}
+          >
+            Orange bars show simulated finish frequency. The blue curve shows cumulative
+            probability on the right-hand axis. The confidence ladder translates P-values
+            into forecast finish dates.
           </p>
 
           <ResponsiveContainer width="100%" height={360}>
@@ -313,9 +367,11 @@ export default function MonteCarloChart({
               lineHeight: 1.6,
             }}
           >
-            The bars show how often the project finished within each simulated range. The blue
-            cumulative curve shows the probability of finishing by each point. P80 and P90 are
-            useful for safer management commitment dates.
+            <strong>Calendar basis:</strong>{" "}
+            {markers?.calendar_basis || "Not available"}
+            <br />
+            <strong>Schedule anchor:</strong>{" "}
+            {formatDate(markers?.schedule_anchor_date)}
           </div>
         </div>
 
@@ -330,21 +386,76 @@ export default function MonteCarloChart({
           }}
         >
           <div>
-            <h4 style={{ margin: "0 0 6px", fontSize: 16, fontWeight: 900, color: "#0f172a" }}>
-              Confidence Ladder
+            <h4
+              style={{
+                margin: "0 0 6px",
+                fontSize: 16,
+                fontWeight: 900,
+                color: "#0f172a",
+              }}
+            >
+              Executive Finish Date Confidence
             </h4>
 
-            <p style={{ margin: "0 0 10px", fontSize: 12, lineHeight: 1.5, color: "#64748b" }}>
-              Higher P-values represent safer, more conservative finish positions.
+            <p
+              style={{
+                margin: "0 0 10px",
+                fontSize: 12,
+                lineHeight: 1.5,
+                color: "#64748b",
+              }}
+            >
+              Higher P-values represent safer, more conservative forecast finish dates.
             </p>
           </div>
 
-          <MarkerCard label="P10" value={markerP10} color="#16a34a" description="Optimistic position. 10% confidence level." />
-          <MarkerCard label="P30" value={markerP30} color="#22c55e" description="Early probable position. Better-case planning range." />
-          <MarkerCard label="P50" value={markerP50} color="#2563eb" description="Median / realistic position. 50% confidence level." />
-          <MarkerCard label="P70" value={markerP70} color="#a855f7" description="Moderately conservative position. Internal planning confidence." />
-          <MarkerCard label="P80" value={markerP80} color="#f59e0b" description="Safer management commitment position. 80% confidence level." />
-          <MarkerCard label="P90" value={markerP90} color="#dc2626" description="Conservative risk position. 90% confidence level." />
+          <MarkerCard
+            label="P10"
+            hours={markerP10}
+            date={markers?.p10_date}
+            color="#16a34a"
+            description="Optimistic finish date. 10% confidence level."
+          />
+
+          <MarkerCard
+            label="P30"
+            hours={markerP30}
+            date={markers?.p30_date}
+            color="#22c55e"
+            description="Early probable finish date. Better-case planning range."
+          />
+
+          <MarkerCard
+            label="P50"
+            hours={markerP50}
+            date={markers?.p50_date}
+            color="#2563eb"
+            description="Median / realistic finish date. 50% confidence level."
+          />
+
+          <MarkerCard
+            label="P70"
+            hours={markerP70}
+            date={markers?.p70_date}
+            color="#a855f7"
+            description="Moderately conservative internal planning date."
+          />
+
+          <MarkerCard
+            label="P80"
+            hours={markerP80}
+            date={markers?.p80_date}
+            color="#f59e0b"
+            description="Safer management commitment date. 80% confidence level."
+          />
+
+          <MarkerCard
+            label="P90"
+            hours={markerP90}
+            date={markers?.p90_date}
+            color="#dc2626"
+            description="Conservative high-confidence risk date."
+          />
         </aside>
       </div>
     </div>
