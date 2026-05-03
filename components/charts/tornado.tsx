@@ -8,6 +8,7 @@ import {
   Tooltip,
   CartesianGrid,
   ResponsiveContainer,
+  LabelList,
 } from "recharts";
 
 type TornadoItem = {
@@ -22,6 +23,12 @@ function formatScore(value: any) {
   const n = Number(value);
   if (Number.isNaN(n)) return "N/A";
   return n.toFixed(3);
+}
+
+function formatPercent(value: any) {
+  const n = Number(value);
+  if (Number.isNaN(n)) return "N/A";
+  return `${(n * 100).toFixed(0)}%`;
 }
 
 function CustomTooltip({ active, payload, label }: any) {
@@ -46,6 +53,8 @@ function CustomTooltip({ active, payload, label }: any) {
       <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.6 }}>
         Impact score: <strong>{formatScore(item?.impact)}</strong>
         <br />
+        Impact strength: <strong>{formatPercent(item?.impact)}</strong>
+        <br />
         Correlation: <strong>{formatScore(item?.correlation)}</strong>
       </div>
     </div>
@@ -63,7 +72,7 @@ export default function TornadoChart({ data }: { data: TornadoItem[] }) {
 
   const chartData = data
     .slice(0, 10)
-    .map((d: any) => ({
+    .map((d: TornadoItem) => ({
       name: d.activity || d.activity_name || "Unnamed activity",
       impact: Number(d.impact_score ?? d.impact ?? 0),
       correlation: Number(d.correlation ?? 0),
@@ -73,23 +82,42 @@ export default function TornadoChart({ data }: { data: TornadoItem[] }) {
 
   return (
     <div>
-      <div style={{ width: "100%", height: 360 }}>
+      <div style={{ width: "100%", height: 380 }}>
         <ResponsiveContainer>
           <BarChart
             data={chartData}
             layout="vertical"
-            margin={{ top: 10, right: 30, left: 40, bottom: 10 }}
+            margin={{ top: 10, right: 60, left: 40, bottom: 10 }}
           >
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" tick={{ fontSize: 12 }} />
+
+            <XAxis
+              type="number"
+              tick={{ fontSize: 12 }}
+              tickFormatter={(value) => formatScore(value)}
+            />
+
             <YAxis
               dataKey="name"
               type="category"
               width={260}
               tick={{ fontSize: 12 }}
             />
+
             <Tooltip content={<CustomTooltip />} />
-            <Bar dataKey="impact" fill="#2563eb" radius={[0, 8, 8, 0]} />
+
+            <Bar dataKey="impact" fill="#2563eb" radius={[0, 8, 8, 0]}>
+              <LabelList
+                dataKey="impact"
+                position="right"
+                formatter={(value: any) => formatScore(value)}
+                style={{
+                  fill: "#0f172a",
+                  fontSize: 12,
+                  fontWeight: 700,
+                }}
+              />
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -106,9 +134,9 @@ export default function TornadoChart({ data }: { data: TornadoItem[] }) {
           lineHeight: 1.6,
         }}
       >
-        This chart shows the activities most correlated with finish-date
-        uncertainty. Higher impact scores mean the activity is more likely to
-        influence the P50/P80/P90 forecast dates.
+        This chart shows activities most correlated with finish-date uncertainty.
+        Higher impact scores mean the activity is more likely to influence the
+        P50/P80/P90 forecast dates.
       </div>
     </div>
   );

@@ -274,7 +274,20 @@ function RiskDriversPanel({ data }: { data: any[] }) {
                 whiteSpace: "nowrap",
               }}
             >
-              Impact: {item?.impact ?? "N/A"}
+              const impact = Number(item?.impact ?? 0);
+
+              <div
+                style={{
+                  padding: "8px 12px",
+                  borderRadius: "999px",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  background: "#dbeafe",
+                  color: "#1d4ed8",
+                }}
+              >
+                {(impact * 100).toFixed(0)}%
+              </div>
             </div>
           </div>
         ))
