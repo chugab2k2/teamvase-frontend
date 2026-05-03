@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import MonteCarloChart from "../../components/charts/monte-carlo";
 import FloatDistribution from "../../components/charts/float-distribution";
+import TornadoChart from "../../components/charts/tornado";
 import { apiFetch, ApiError } from "../../lib/api";
 
 type Explanation = {
@@ -783,12 +784,27 @@ export default function DashboardPage() {
           </SectionCard>
         </section>
 
-        <SectionCard
-          title="Top Risk Drivers"
-          subtitle="Activities or path elements currently contributing most to delivery sensitivity."
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+          }}
         >
-          <RiskDriversPanel data={analysis?.risk_drivers || []} />
-        </SectionCard>
+          <SectionCard
+            title="Top Criticality Drivers"
+            subtitle="Activities most frequently appearing on the simulated critical path."
+          >
+            <RiskDriversPanel data={analysis?.risk_drivers || []} />
+          </SectionCard>
+
+          <SectionCard
+            title="Schedule Sensitivity / Tornado Drivers"
+            subtitle="Activities most correlated with finish-date uncertainty and forecast spread."
+          >
+            <TornadoChart data={analysis?.tornado_chart || []} />
+          </SectionCard>
+        </section>
 
         <section
           style={{
