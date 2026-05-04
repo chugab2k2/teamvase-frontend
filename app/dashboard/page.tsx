@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import MonteCarloChart from "../../components/charts/monte-carlo";
 import FloatDistribution from "../../components/charts/float-distribution";
 import TornadoChart from "../../components/charts/tornado";
+import DriverImpactPanel from "../../components/DriverImpactPanel";
 import { apiFetch, ApiError } from "../../lib/api";
 
 type Explanation = {
@@ -808,6 +809,11 @@ function DashboardContent() {
             <TornadoChart data={analysis?.tornado_chart || []} />
           </SectionCard>
         </section>
+
+        <DriverImpactPanel
+          data={analysis?.driver_date_impacts || []}
+          uncertaintyWindowDays={analysis?.uncertainty_window_days}
+        />
 
         <section
           style={{
