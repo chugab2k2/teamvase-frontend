@@ -1,7 +1,7 @@
 "use client";
 
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 import MonteCarloChart from "../../components/charts/monte-carlo";
 import FloatDistribution from "../../components/charts/float-distribution";
@@ -227,54 +227,47 @@ function RiskDriversPanel({ data }: { data: any[] }) {
           No major risk drivers detected in the current analysis.
         </p>
       ) : (
-        items.map((item: any, idx: number) => (
-          <div
-            key={idx}
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: "16px",
-              alignItems: "center",
-              padding: "14px 16px",
-              border: "1px solid #e2e8f0",
-              borderRadius: "14px",
-              background: "#f8fafc",
-            }}
-          >
-            <div>
-              <div
-                style={{
-                  fontWeight: 700,
-                  color: "#0f172a",
-                  fontSize: "14px",
-                }}
-              >
-                {item?.activity || "Unnamed Driver"}
-              </div>
+        items.map((item: any, idx: number) => {
+          const impact = Number(item?.impact ?? 0);
+          const impactLabel = Number.isNaN(impact)
+            ? "N/A"
+            : `${(impact * 100).toFixed(0)}%`;
 
-              <div
-                style={{
-                  color: "#64748b",
-                  fontSize: "13px",
-                  marginTop: "4px",
-                }}
-              >
-                Potential schedule sensitivity driver
-              </div>
-            </div>
-
+          return (
             <div
+              key={idx}
               style={{
-                padding: "8px 12px",
-                borderRadius: "999px",
-                fontSize: "12px",
-                fontWeight: 700,
-                background: "#dbeafe",
-                color: "#1d4ed8",
-                whiteSpace: "nowrap",
+                display: "flex",
+                justifyContent: "space-between",
+                gap: "16px",
+                alignItems: "center",
+                padding: "14px 16px",
+                border: "1px solid #e2e8f0",
+                borderRadius: "14px",
+                background: "#f8fafc",
               }}
             >
-              const impact = Number(item?.impact ?? 0);
+              <div>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    color: "#0f172a",
+                    fontSize: "14px",
+                  }}
+                >
+                  {item?.activity || "Unnamed Driver"}
+                </div>
+
+                <div
+                  style={{
+                    color: "#64748b",
+                    fontSize: "13px",
+                    marginTop: "4px",
+                  }}
+                >
+                  Simulated critical-path frequency
+                </div>
+              </div>
 
               <div
                 style={{
@@ -284,13 +277,14 @@ function RiskDriversPanel({ data }: { data: any[] }) {
                   fontWeight: 700,
                   background: "#dbeafe",
                   color: "#1d4ed8",
+                  whiteSpace: "nowrap",
                 }}
               >
-                {(impact * 100).toFixed(0)}%
+                {impactLabel}
               </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );
@@ -432,29 +426,25 @@ function ProcessingPanel({
               gap: "12px",
             }}
           >
-            {[
-              "Parsing",
-              "Metrics",
-              "Monte Carlo",
-              "AI Insights",
-              "Complete",
-            ].map((label) => (
-              <div
-                key={label}
-                style={{
-                  padding: "12px",
-                  borderRadius: "14px",
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  color: "#475569",
-                  fontSize: "13px",
-                  fontWeight: 700,
-                  textAlign: "center",
-                }}
-              >
-                {label}
-              </div>
-            ))}
+            {["Parsing", "Metrics", "Monte Carlo", "AI Insights", "Complete"].map(
+              (label) => (
+                <div
+                  key={label}
+                  style={{
+                    padding: "12px",
+                    borderRadius: "14px",
+                    background: "#f8fafc",
+                    border: "1px solid #e2e8f0",
+                    color: "#475569",
+                    fontSize: "13px",
+                    fontWeight: 700,
+                    textAlign: "center",
+                  }}
+                >
+                  {label}
+                </div>
+              )
+            )}
           </div>
         </SectionCard>
       </div>
@@ -462,7 +452,7 @@ function ProcessingPanel({
   );
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const jobId = searchParams.get("job_id");
 
@@ -1113,5 +1103,13 @@ export default function DashboardPage() {
         </section>
       </div>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 32 }}>Loading dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }
