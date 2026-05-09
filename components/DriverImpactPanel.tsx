@@ -147,7 +147,7 @@ export default function DriverImpactPanel({
             whiteSpace: "nowrap",
           }}
         >
-          Uncertainty window: {uncertaintyWindowDays ?? "N/A"} days
+          Base uncertainty window: {uncertaintyWindowDays ?? "N/A"} days · Sensitivity-scaled
         </div>
       </div>
 
