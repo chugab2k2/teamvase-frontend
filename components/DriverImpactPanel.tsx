@@ -130,8 +130,8 @@ export default function DriverImpactPanel({
               lineHeight: 1.6,
             }}
           >
-            Sensitivity-based estimate of how strongly each driver contributes
-            to P80/P90 finish-date uncertainty.
+            Sensitivity-based estimate, in calendar days, showing how strongly each 
+            driver contributes to P80/P90 finish-date uncertainty.
           </p>
         </div>
 
@@ -147,7 +147,7 @@ export default function DriverImpactPanel({
             whiteSpace: "nowrap",
           }}
         >
-          Base uncertainty window: {uncertaintyWindowDays ?? "N/A"} days · Sensitivity-scaled
+          Base uncertainty window: {uncertaintyWindowDays ?? "N/A"} calendar days · Sensitivity-scaled
         </div>
       </div>
 
@@ -322,9 +322,9 @@ export default function DriverImpactPanel({
           lineHeight: 1.6,
         }}
       >
-        Estimated date impact is sensitivity-based. It indicates how strongly
-        each activity contributes to forecast-date uncertainty; it is not a
-        deterministic delay claim.
+        Estimated date impact is sensitivity-based and shown in calendar days.
+        It indicates how strongly each activity contributes to forecast-date uncertainty; 
+        it is not a deterministic delay claim and should not be treated as cumulative delay.
       </div>
     </section>
   );
