@@ -427,25 +427,29 @@ function ProcessingPanel({
               gap: "12px",
             }}
           >
-            {["Parsing", "Metrics", "Monte Carlo", "AI Insights", "Complete"].map(
-              (label) => (
-                <div
-                  key={label}
-                  style={{
-                    padding: "12px",
-                    borderRadius: "14px",
-                    background: "#f8fafc",
-                    border: "1px solid #e2e8f0",
-                    color: "#475569",
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    textAlign: "center",
-                  }}
-                >
-                  {label}
-                </div>
-              )
-            )}
+            {[
+              "Parsing",
+              "Metrics",
+              "Monte Carlo",
+              "AI Insights",
+              "Complete",
+            ].map((label) => (
+              <div
+                key={label}
+                style={{
+                  padding: "12px",
+                  borderRadius: "14px",
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  color: "#475569",
+                  fontSize: "13px",
+                  fontWeight: 700,
+                  textAlign: "center",
+                }}
+              >
+                {label}
+              </div>
+            ))}
           </div>
         </SectionCard>
       </div>
@@ -823,50 +827,6 @@ function DashboardContent() {
           }}
         >
           <SectionCard
-            title="Key Findings"
-            subtitle="Primary schedule conditions detected in the core analysis."
-          >
-            <InsightList
-              items={analysis?.key_findings || []}
-              emptyText="No key findings available."
-            />
-          </SectionCard>
-
-          <SectionCard
-            title="Recommended Actions"
-            subtitle="Immediate actions already identified from the base schedule review."
-          >
-            <InsightList
-              items={analysis?.immediate_actions || []}
-              emptyText="No recommended actions available."
-            />
-          </SectionCard>
-        </section>
-
-        <SectionCard
-          title="Executive Summary"
-          subtitle="Management-level view of current schedule condition."
-        >
-          <p
-            style={{
-              margin: 0,
-              color: "#0f172a",
-              fontSize: "15px",
-              lineHeight: 1.8,
-            }}
-          >
-            {analysis?.executive_summary || "No summary available."}
-          </p>
-        </SectionCard>
-        
-        <section
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "24px",
-          }}
-        >
-          <SectionCard
             title="Schedule Integrity Narrative"
             subtitle="AI review of deterministic P6 schedule quality, logic integrity, and schedule health."
           >
@@ -903,6 +863,62 @@ function DashboardContent() {
 
         <section
           style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+          }}
+        >
+          <SectionCard
+            title="Key Findings"
+            subtitle="Primary schedule conditions detected in the core analysis."
+          >
+            <InsightList
+              items={analysis?.key_findings || []}
+              emptyText="No key findings available."
+            />
+          </SectionCard>
+
+          <SectionCard
+            title="Recommended Actions"
+            subtitle="Immediate actions already identified from the base schedule review."
+          >
+            <InsightList
+              items={analysis?.immediate_actions || []}
+              emptyText="No recommended actions available."
+            />
+          </SectionCard>
+        </section>
+
+        <SectionCard
+          title="Executive Summary"
+          subtitle="Management-level view of current schedule condition."
+        >
+          <p
+            style={{
+              margin: 0,
+              color: "#0f172a",
+              fontSize: "15px",
+              lineHeight: 1.8,
+            }}
+          >
+            {analysis?.executive_summary || "No summary available."}
+          </p>
+        </SectionCard>
+
+        <div
+          style={{
+            fontSize: "12px",
+            fontWeight: 800,
+            color: "#2563eb",
+            marginBottom: "8px",
+            letterSpacing: "0.06em",
+          }}
+        >
+          PRO ANALYTICS LAYER
+        </div>
+
+        <section
+          style={{
             background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
             border: "1px solid #dbeafe",
             borderRadius: "24px",
@@ -929,7 +945,7 @@ function DashboardContent() {
                   color: "#0f172a",
                 }}
               >
-                AI Explanation Engine
+                Advanced AI Diagnostic Review
               </h2>
 
               <p
@@ -939,8 +955,8 @@ function DashboardContent() {
                   fontSize: "14px",
                 }}
               >
-                Strategic interpretation layer for directors and senior project
-                controls leadership.
+                Deep-dive diagnostic layer providing root-cause analysis, risk
+                interpretation, and execution strategy.
               </p>
             </div>
 
@@ -1156,7 +1172,9 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div style={{ padding: 32 }}>Loading dashboard...</div>}>
+    <Suspense
+      fallback={<div style={{ padding: 32 }}>Loading dashboard...</div>}
+    >
       <DashboardContent />
     </Suspense>
   );
