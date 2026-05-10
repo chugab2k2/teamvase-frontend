@@ -13,12 +13,12 @@ export default function ExportPdfButton() {
     }
 
     const canvas = await html2canvas(dashboard, {
-      scale: 2,
+      scale: 1,
       useCORS: true,
       backgroundColor: "#ffffff",
     });
 
-    const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/jpeg", 0.7);
 
     const pdf = new jsPDF({
       orientation: "portrait",
