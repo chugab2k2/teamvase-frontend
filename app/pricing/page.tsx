@@ -15,15 +15,7 @@ type MeResponse = {
   };
 };
 
-function FeatureRow({
-  feature,
-  free,
-  pro,
-}: {
-  feature: string;
-  free: string;
-  pro: string;
-}) {
+function FeatureRow({ feature, free, pro }: { feature: string; free: string; pro: string }) {
   return (
     <div
       style={{
@@ -35,15 +27,11 @@ function FeatureRow({
         alignItems: "center",
       }}
     >
-      <div style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a" }}>
-        {feature}
-      </div>
+      <div style={{ fontSize: "14px", fontWeight: 700, color: "#0f172a" }}>{feature}</div>
 
       <div style={{ fontSize: "14px", color: "#475569" }}>{free}</div>
 
-      <div style={{ fontSize: "14px", color: "#166534", fontWeight: 700 }}>
-        {pro}
-      </div>
+      <div style={{ fontSize: "14px", color: "#166534", fontWeight: 700 }}>{pro}</div>
     </div>
   );
 }
@@ -92,7 +80,7 @@ function PlanCard({
             textTransform: "uppercase",
           }}
         >
-          Best Value
+          Most Popular
         </div>
       ) : null}
 
@@ -149,8 +137,7 @@ export default function PricingPage() {
         setLoading(true);
         setError("");
 
-        const token =
-          typeof window !== "undefined" ? localStorage.getItem("token") : null;
+        const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
         if (!token) {
           setMe(null);
@@ -199,8 +186,7 @@ export default function PricingPage() {
       setCheckoutLoading(true);
       setError("");
 
-      const token =
-        typeof window !== "undefined" ? localStorage.getItem("token") : null;
+      const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
       if (!token) {
         window.location.href = "/login?next=/billing";
@@ -248,8 +234,7 @@ export default function PricingPage() {
       >
         <section
           style={{
-            background:
-              "linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%)",
+            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%)",
             color: "#ffffff",
             borderRadius: "24px",
             padding: "30px 32px",
@@ -298,10 +283,20 @@ export default function PricingPage() {
                   lineHeight: 1.8,
                 }}
               >
-                Choose the plan that fits your project controls workflow. Start
-                free, then unlock advanced AI analysis, unlimited capacity, and
-                stronger executive reporting with Pro.
+                Choose the plan that fits your project controls workflow. Start free, then unlock
+                advanced AI analysis, unlimited capacity, and stronger executive reporting with Pro.
               </p>
+              <div
+                style={{
+                  marginTop: "18px",
+                  fontSize: "14px",
+                  color: "#cbd5e1",
+                  lineHeight: 1.8,
+                }}
+              >
+                Built for planners, project controls managers, consultants, and PMO teams using
+                Primavera P6.
+              </div>
             </div>
 
             <div
@@ -374,16 +369,21 @@ export default function PricingPage() {
           }}
         >
           <PlanCard
-            name="Free"
+            name="Starter"
             price="$0"
             description="For early validation, light schedule uploads, and basic project controls analysis."
             accent="#f59e0b"
           >
             <div style={{ display: "grid", gap: "12px" }}>
-              <div style={bulletItem}>Basic upload workflow</div>
-              <div style={bulletItem}>Core dashboard metrics</div>
-              <div style={bulletItem}>Limited uploads</div>
-              <div style={bulletItem}>Limited saved reports</div>
+              <div style={bulletItem}>Upload Primavera P6 schedules</div>
+
+              <div style={bulletItem}>Instant schedule health diagnostics</div>
+
+              <div style={bulletItem}>Monte Carlo risk preview</div>
+
+              <div style={bulletItem}>Limited uploads and saved reports</div>
+
+              <div style={bulletItem}>AI explanation locked</div>
             </div>
 
             <button
@@ -412,10 +412,17 @@ export default function PricingPage() {
             highlighted
           >
             <div style={{ display: "grid", gap: "12px" }}>
-              <div style={bulletItem}>Unlimited uploads</div>
-              <div style={bulletItem}>AI Explanation Engine</div>
-              <div style={bulletItem}>AI portfolio comparison insight</div>
+              <div style={bulletItem}>Unlimited Primavera schedule uploads</div>
+
+              <div style={bulletItem}>Executive-grade AI risk interpretation</div>
+
+              <div style={bulletItem}>Portfolio and schedule comparison tools</div>
+
+              <div style={bulletItem}>Advanced Monte Carlo intelligence</div>
+
               <div style={bulletItem}>Unlimited saved reports</div>
+
+              <div style={bulletItem}>Premium project controls diagnostics</div>
             </div>
 
             <button
@@ -428,24 +435,17 @@ export default function PricingPage() {
                 borderRadius: "14px",
                 border: "1px solid #2563eb",
                 background:
-                  currentPlan === "pro"
-                    ? "#dbeafe"
-                    : checkoutLoading
-                    ? "#93c5fd"
-                    : "#2563eb",
+                  currentPlan === "pro" ? "#dbeafe" : checkoutLoading ? "#93c5fd" : "#2563eb",
                 color: currentPlan === "pro" ? "#1d4ed8" : "#ffffff",
                 fontWeight: 800,
-                cursor:
-                  currentPlan === "pro" || checkoutLoading
-                    ? "not-allowed"
-                    : "pointer",
+                cursor: currentPlan === "pro" || checkoutLoading ? "not-allowed" : "pointer",
               }}
             >
               {currentPlan === "pro"
                 ? "Already on Pro"
                 : checkoutLoading
-                ? "Redirecting to Checkout..."
-                : "Upgrade to Pro"}
+                  ? "Redirecting to Checkout..."
+                  : "Upgrade to Pro"}
             </button>
           </PlanCard>
         </section>
@@ -511,11 +511,7 @@ export default function PricingPage() {
           <FeatureRow feature="AI Explanation Engine" free="Locked" pro="Included" />
           <FeatureRow feature="AI Compare insight" free="Locked" pro="Included" />
           <FeatureRow feature="Saved reports" free="Up to 3" pro="Unlimited" />
-          <FeatureRow
-            feature="Executive workflow continuity"
-            free="Limited"
-            pro="Included"
-          />
+          <FeatureRow feature="Executive workflow continuity" free="Limited" pro="Included" />
         </section>
       </div>
     </div>
