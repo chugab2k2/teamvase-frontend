@@ -13,13 +13,14 @@ export default function LandingPage() {
             <h1 style={heroTitle}>AI Copilot for Project Controls</h1>
 
             <p style={heroText}>
-              Upload your Primavera P6 schedule and get instant schedule health diagnostics, risk
-              insights, Monte Carlo intelligence, and executive-ready AI explanations.
+              Upload Primavera P6 schedules and instantly generate schedule diagnostics, float
+              analysis, Monte Carlo risk intelligence, portfolio comparisons, executive-ready
+              reports, and AI-powered project insights.
             </p>
 
             <div style={buttonRow}>
               <a href="/register?next=/upload" style={primaryHeroBtn}>
-                Start Uploading
+                Upload Schedule
               </a>
 
               <a href="/pricing" style={secondaryHeroBtn}>
@@ -30,16 +31,18 @@ export default function LandingPage() {
 
           <div style={previewWrap}>
             <div style={previewCard}>
-              <div style={previewLabel}>Schedule Health</div>
-              <div style={previewValue}>74</div>
-              <div style={previewSub}>Moderate · needs proactive control</div>
+              <div style={previewLabel}>AI Project Controls Workspace</div>
+              <div style={previewValue}>P6</div>
+              <div style={previewSub}>
+                Schedule diagnostics · risk analytics · portfolio intelligence
+              </div>
             </div>
 
             <div style={{ display: "grid", gap: "12px", marginTop: "16px" }}>
-              <div style={miniMetric}>Open Ends: 8</div>
-              <div style={miniMetric}>Negative Float: 0</div>
-              <div style={miniMetric}>AI Explanation: Pro</div>
-              <div style={miniMetric}>Comparison Insight: Pro</div>
+              <div style={miniMetric}>Saved analyses and dashboards</div>
+              <div style={miniMetric}>Monte Carlo forecast intelligence</div>
+              <div style={miniMetric}>Portfolio comparison and AI insights</div>
+              <div style={miniMetric}>Executive PDF reports and snapshots</div>
             </div>
           </div>
         </div>
@@ -47,36 +50,115 @@ export default function LandingPage() {
 
       <section style={sectionWrap}>
         <div style={sectionInner}>
-          <h2 style={sectionTitle}>Turn schedule data into project intelligence</h2>
+          <h2 style={sectionTitle}>Everything project controls teams need in one AI workspace</h2>
 
           <p style={sectionText}>
-            TeamVase helps planners, project controls managers, and project leaders move from manual
-            schedule review to faster decision support. Instead of only seeing dates and charts, you
-            see what is wrong, why it matters, and what action to take.
+            TeamVase helps planners, schedulers, project controls managers, consultants, and
+            executives turn Primavera P6 schedules into decision-ready intelligence across single
+            projects, portfolios, and executive reporting workflows.
+          </p>
+
+          <div style={sixGrid}>
+            <FeatureCard
+              title="Schedule Diagnostics"
+              text="Identify open ends, negative float, logic issues, float exposure, activity counts, and overall schedule health."
+            />
+
+            <FeatureCard
+              title="Monte Carlo Risk Intelligence"
+              text="Generate P10–P90 forecast dates, completion confidence, uncertainty views, criticality, and schedule risk exposure."
+            />
+
+            <FeatureCard
+              title="AI Executive Explanations"
+              text="Convert technical schedule outputs into clear root causes, key risks, management summaries, and recommended actions."
+            />
+
+            <FeatureCard
+              title="Portfolio Intelligence"
+              text="Compare multiple completed analyses, rank project health, identify high-risk jobs, and support PMO-level oversight."
+            />
+
+            <FeatureCard
+              title="Saved Reports & Snapshots"
+              text="Save comparison snapshots, reopen executive reports, preserve historical analyses, and build a reusable reporting library."
+            />
+
+            <FeatureCard
+              title="AI Comparison Engine"
+              text="Compare project schedules, expose performance differences, explain risk rankings, and prioritize intervention areas."
+            />
+          </div>
+        </div>
+      </section>
+
+      <section style={{ ...sectionWrap, background: "#ffffff" }}>
+        <div style={sectionInner}>
+          <h2 style={sectionTitle}>From schedule checks to project controls intelligence</h2>
+
+          <p style={sectionText}>
+            TeamVase goes beyond one-off schedule review. It combines deterministic schedule quality
+            checks, probabilistic risk analytics, saved dashboards, portfolio ranking, AI comparison
+            insights, and executive reporting in a single workflow.
           </p>
 
           <div style={threeGrid}>
             <div style={infoCard}>
-              <h3 style={infoCardTitle}>Upload Primavera files</h3>
+              <h3 style={infoCardTitle}>Analyze</h3>
               <p style={infoCardText}>
-                Upload P6 `.xer` schedules and generate automated diagnostics without manual
-                spreadsheet preparation.
+                Upload P6 `.xer` schedules and generate schedule health, activity metrics, logic
+                diagnostics, Monte Carlo forecasts, and AI explanations.
               </p>
             </div>
 
             <div style={infoCard}>
-              <h3 style={infoCardTitle}>Identify risks quickly</h3>
+              <h3 style={infoCardTitle}>Compare</h3>
               <p style={infoCardText}>
-                Review health score, float concerns, open ends, risk drivers, Monte Carlo outputs,
-                and schedule pressure indicators.
+                Compare completed jobs across health, open ends, negative float, risk exposure, and
+                executive performance narratives.
               </p>
             </div>
 
             <div style={infoCard}>
-              <h3 style={infoCardTitle}>Explain results clearly</h3>
+              <h3 style={infoCardTitle}>Report</h3>
               <p style={infoCardText}>
-                Convert technical schedule analytics into executive-ready explanations, actions, and
-                project control decisions.
+                Save snapshots, reopen report history, and export executive-ready PDF reports for
+                management, clients, and project teams.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={sectionWrap}>
+        <div style={sectionInner}>
+          <h2 style={sectionTitle}>Built for real project controls workflows</h2>
+
+          <div style={threeGrid}>
+            <div style={workflowCard}>
+              <div style={workflowNumber}>01</div>
+              <h3 style={workflowTitle}>My Analyses</h3>
+              <p style={workflowText}>
+                Keep a saved library of completed schedule analyses. Reopen dashboards, review
+                previous uploads, and compare selected jobs.
+              </p>
+            </div>
+
+            <div style={workflowCard}>
+              <div style={workflowNumber}>02</div>
+              <h3 style={workflowTitle}>Portfolio Dashboard</h3>
+              <p style={workflowText}>
+                Review average health, total jobs, high-risk projects, health trends, portfolio
+                ranking, and latest job summaries.
+              </p>
+            </div>
+
+            <div style={workflowCard}>
+              <div style={workflowNumber}>03</div>
+              <h3 style={workflowTitle}>Reports Library</h3>
+              <p style={workflowText}>
+                Store comparison snapshots, track saved report history, reopen management reports,
+                and support recurring project reviews.
               </p>
             </div>
           </div>
@@ -85,11 +167,47 @@ export default function LandingPage() {
 
       <section style={{ ...sectionWrap, background: "#ffffff" }}>
         <div style={sectionInner}>
-          <h2 style={sectionTitle}>Simple plan structure</h2>
+          <h2 style={sectionTitle}>Why TeamVase is different</h2>
 
           <p style={sectionText}>
-            Start free, validate the workflow, then upgrade when you need unlimited capacity and
-            premium AI decision support.
+            Traditional tools show schedule data. TeamVase helps explain what it means, which
+            projects need attention, which drivers matter, and what management should do next.
+          </p>
+
+          <div style={comparisonGrid}>
+            <div style={comparisonCard}>
+              <h3 style={comparisonTitle}>Typical Schedule Review</h3>
+              <ul style={listStyle}>
+                <li>Manual checks and spreadsheet summaries</li>
+                <li>Limited executive interpretation</li>
+                <li>Single-project analysis only</li>
+                <li>Reports recreated repeatedly</li>
+                <li>Risk drivers not always clearly explained</li>
+              </ul>
+            </div>
+
+            <div style={{ ...comparisonCard, border: "2px solid #2563eb" }}>
+              <h3 style={comparisonTitle}>TeamVase AI Copilot</h3>
+              <ul style={listStyle}>
+                <li>Instant P6 diagnostics and health scoring</li>
+                <li>Monte Carlo and driver-based risk intelligence</li>
+                <li>Portfolio ranking and comparison insights</li>
+                <li>Saved reports and executive PDF exports</li>
+                <li>AI explanations for leadership decisions</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={sectionWrap}>
+        <div style={sectionInner}>
+          <h2 style={sectionTitle}>Simple MVP pricing for early adopters</h2>
+
+          <p style={sectionText}>
+            Start free, validate the workflow, then upgrade when you need higher capacity, advanced
+            AI diagnostics, saved reports, portfolio comparison, and executive-ready project
+            controls intelligence.
           </p>
 
           <div style={pricingGrid}>
@@ -97,14 +215,14 @@ export default function LandingPage() {
               <div style={planName}>Free</div>
               <div style={planPrice}>$0</div>
               <p style={planText}>
-                Best for testing the upload workflow and viewing basic schedule analysis.
+                Best for testing the upload workflow and reviewing basic schedule intelligence.
               </p>
 
               <div style={featureList}>
-                <div style={featureItem}>Limited uploads</div>
-                <div style={featureItem}>Basic dashboard</div>
-                <div style={featureItem}>Schedule health metrics</div>
-                <div style={featureItem}>Monte Carlo visibility</div>
+                <div style={featureItem}>Limited schedule uploads</div>
+                <div style={featureItem}>Basic schedule health dashboard</div>
+                <div style={featureItem}>Open ends and negative float checks</div>
+                <div style={featureItem}>Limited saved analyses</div>
               </div>
 
               <a href="/register?next=/upload" style={lightBtn}>
@@ -117,48 +235,77 @@ export default function LandingPage() {
               <div style={planName}>Pro</div>
               <div style={planPrice}>$29/mo</div>
               <p style={planText}>
-                Built for planners and project leaders who need premium schedule intelligence and
-                unlimited working capacity.
+                Built for planners, consultants, and project controls professionals who need premium
+                schedule and portfolio intelligence.
               </p>
 
               <div style={featureList}>
                 <div style={featureItem}>Unlimited uploads</div>
-                <div style={featureItem}>AI Explanation Engine</div>
-                <div style={featureItem}>AI comparison insight</div>
                 <div style={featureItem}>Unlimited saved reports</div>
+                <div style={featureItem}>Monte Carlo P10–P90 intelligence</div>
+                <div style={featureItem}>Tornado and criticality drivers</div>
+                <div style={featureItem}>AI comparison insights</div>
+                <div style={featureItem}>Portfolio dashboard</div>
+                <div style={featureItem}>Executive PDF export</div>
+                <div style={featureItem}>Advanced AI diagnostic review</div>
               </div>
 
               <a href="/billing" style={primaryPlanBtn}>
                 Upgrade to Pro
               </a>
             </div>
+
+            <div style={planCard}>
+              <div style={planName}>Team</div>
+              <div style={planPrice}>Custom</div>
+              <p style={planText}>
+                For EPC teams, PM consultants, owners, and project organizations that need
+                multi-user project controls intelligence.
+              </p>
+
+              <div style={featureList}>
+                <div style={featureItem}>Team workspaces</div>
+                <div style={featureItem}>Shared portfolio reporting</div>
+                <div style={featureItem}>Client-branded reports</div>
+                <div style={featureItem}>Portfolio governance dashboards</div>
+                <div style={featureItem}>Custom onboarding</div>
+                <div style={featureItem}>Priority support</div>
+              </div>
+
+              <a href="/pricing" style={lightBtn}>
+                Contact Sales
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
-      <section style={sectionWrap}>
+      <section style={{ ...sectionWrap, background: "#ffffff" }}>
         <div style={sectionInner}>
-          <h2 style={sectionTitle}>Built for real project controls workflows</h2>
+          <h2 style={sectionTitle}>Who TeamVase is for</h2>
 
           <div style={threeGrid}>
             <div style={featureCard}>
-              <div style={featureHeading}>For Planners</div>
+              <div style={featureHeading}>Planners & Schedulers</div>
               <div style={featureBody}>
-                Quickly review logic quality, float pressure, open ends, and schedule health.
+                Quickly identify logic gaps, float exposure, open ends, risk drivers, and schedule
+                quality issues before they become reporting problems.
               </div>
             </div>
 
             <div style={featureCard}>
-              <div style={featureHeading}>For Project Controls Managers</div>
+              <div style={featureHeading}>Project Controls Managers</div>
               <div style={featureBody}>
-                Compare schedule condition, monitor risk exposure, and support recovery decisions.
+                Review saved analyses, compare jobs, monitor portfolio health, generate reports, and
+                explain project risk to leadership.
               </div>
             </div>
 
             <div style={featureCard}>
-              <div style={featureHeading}>For Directors</div>
+              <div style={featureHeading}>Executives & Project Directors</div>
               <div style={featureBody}>
-                Get management-ready summaries that explain risks in clear business language.
+                Get decision-ready summaries that explain performance, forecast risk, intervention
+                priorities, and delivery confidence.
               </div>
             </div>
           </div>
@@ -168,16 +315,16 @@ export default function LandingPage() {
       <section style={ctaSection}>
         <div style={sectionInner}>
           <div style={ctaBox}>
-            <h2 style={ctaTitle}>Start with your next schedule upload</h2>
+            <h2 style={ctaTitle}>Turn project schedules into executive intelligence</h2>
 
             <p style={ctaText}>
-              Use the free tier to validate the workflow, then move to Pro when you need premium AI
-              insight and unlimited working capacity.
+              Upload a Primavera P6 schedule, generate schedule diagnostics, compare project
+              performance, save reports, and export management-ready AI insights in minutes.
             </p>
 
             <div style={buttonRow}>
-              <a href="/upload" style={whiteBtn}>
-                Go to Upload Workspace
+              <a href="/register?next=/upload" style={whiteBtn}>
+                Start Free
               </a>
 
               <a href="/pricing" style={ghostBtn}>
@@ -187,6 +334,15 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+function FeatureCard({ title, text }: { title: string; text: string }) {
+  return (
+    <div style={featureCard}>
+      <div style={featureHeading}>{title}</div>
+      <div style={featureBody}>{text}</div>
     </div>
   );
 }
@@ -314,6 +470,12 @@ const threeGrid: CSSProperties = {
   gap: "20px",
 };
 
+const sixGrid: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gap: "20px",
+};
+
 const pricingGrid: CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
@@ -342,6 +504,72 @@ const infoCardText: CSSProperties = {
   fontSize: "14px",
   lineHeight: 1.8,
   color: "#475569",
+};
+
+const workflowCard: CSSProperties = {
+  background: "#ffffff",
+  border: "1px solid #e5e7eb",
+  borderRadius: "24px",
+  padding: "24px",
+  boxShadow: "0 8px 26px rgba(15, 23, 42, 0.06)",
+};
+
+const workflowNumber: CSSProperties = {
+  width: "42px",
+  height: "42px",
+  borderRadius: "14px",
+  background: "#dbeafe",
+  color: "#1d4ed8",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 900,
+  marginBottom: "18px",
+};
+
+const workflowTitle: CSSProperties = {
+  margin: 0,
+  fontSize: "22px",
+  color: "#0f172a",
+  fontWeight: 900,
+};
+
+const workflowText: CSSProperties = {
+  marginTop: "10px",
+  marginBottom: 0,
+  color: "#475569",
+  fontSize: "14px",
+  lineHeight: 1.8,
+};
+
+const comparisonGrid: CSSProperties = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+  gap: "24px",
+};
+
+const comparisonCard: CSSProperties = {
+  background: "#ffffff",
+  border: "1px solid #e5e7eb",
+  borderRadius: "24px",
+  padding: "26px",
+  boxShadow: "0 8px 26px rgba(15, 23, 42, 0.06)",
+};
+
+const comparisonTitle: CSSProperties = {
+  marginTop: 0,
+  marginBottom: "18px",
+  fontSize: "24px",
+  fontWeight: 900,
+  color: "#0f172a",
+};
+
+const listStyle: CSSProperties = {
+  margin: 0,
+  paddingLeft: "20px",
+  color: "#334155",
+  lineHeight: 1.9,
+  fontSize: "15px",
 };
 
 const planCard: CSSProperties = {
