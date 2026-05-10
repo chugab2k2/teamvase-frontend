@@ -858,6 +858,48 @@ function DashboardContent() {
             {analysis?.executive_summary || "No summary available."}
           </p>
         </SectionCard>
+        
+        <section
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "24px",
+          }}
+        >
+          <SectionCard
+            title="Schedule Integrity Narrative"
+            subtitle="AI review of deterministic P6 schedule quality, logic integrity, and schedule health."
+          >
+            <p
+              style={{
+                margin: 0,
+                color: "#0f172a",
+                fontSize: "15px",
+                lineHeight: 1.8,
+              }}
+            >
+              {analysis?.schedule_narrative ||
+                "No schedule integrity narrative available."}
+            </p>
+          </SectionCard>
+
+          <SectionCard
+            title="Risk & Forecast Narrative"
+            subtitle="AI explanation of Monte Carlo forecast risk, driver sensitivity, and P80/P90 exposure."
+          >
+            <p
+              style={{
+                margin: 0,
+                color: "#0f172a",
+                fontSize: "15px",
+                lineHeight: 1.8,
+              }}
+            >
+              {analysis?.risk_narrative ||
+                "No risk and forecast narrative available."}
+            </p>
+          </SectionCard>
+        </section>
 
         <section
           style={{
