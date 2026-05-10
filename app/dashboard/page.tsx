@@ -166,13 +166,7 @@ function KpiCard({
   );
 }
 
-function InsightList({
-  items,
-  emptyText,
-}: {
-  items: string[];
-  emptyText: string;
-}) {
+function InsightList({ items, emptyText }: { items: string[]; emptyText: string }) {
   if (!items || items.length === 0) {
     return (
       <p
@@ -230,9 +224,7 @@ function RiskDriversPanel({ data }: { data: any[] }) {
       ) : (
         items.map((item: any, idx: number) => {
           const impact = Number(item?.impact ?? 0);
-          const impactLabel = Number.isNaN(impact)
-            ? "N/A"
-            : `${(impact * 100).toFixed(0)}%`;
+          const impactLabel = Number.isNaN(impact) ? "N/A" : `${(impact * 100).toFixed(0)}%`;
 
           return (
             <div
@@ -291,13 +283,7 @@ function RiskDriversPanel({ data }: { data: any[] }) {
   );
 }
 
-function ProcessingPanel({
-  progress,
-  stage,
-}: {
-  progress: number;
-  stage: string;
-}) {
+function ProcessingPanel({ progress, stage }: { progress: number; stage: string }) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress || 0)));
 
   return (
@@ -318,8 +304,7 @@ function ProcessingPanel({
       >
         <section
           style={{
-            background:
-              "linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%)",
+            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%)",
             color: "#ffffff",
             borderRadius: "24px",
             padding: "28px 30px",
@@ -357,8 +342,7 @@ function ProcessingPanel({
               fontSize: "15px",
             }}
           >
-            Your Primavera schedule is being parsed, analysed, simulated, and
-            interpreted.
+            Your Primavera schedule is being parsed, analysed, simulated, and interpreted.
           </p>
         </section>
 
@@ -427,13 +411,7 @@ function ProcessingPanel({
               gap: "12px",
             }}
           >
-            {[
-              "Parsing",
-              "Metrics",
-              "Monte Carlo",
-              "AI Insights",
-              "Complete",
-            ].map((label) => (
+            {["Parsing", "Metrics", "Monte Carlo", "AI Insights", "Complete"].map((label) => (
               <div
                 key={label}
                 style={{
@@ -529,11 +507,7 @@ function DashboardContent() {
   }, [jobId, data, explanation, explanationLoading, explanationLocked]);
 
   if (!data) {
-    return (
-      <div style={{ padding: "32px", color: "#0f172a" }}>
-        Loading dashboard...
-      </div>
-    );
+    return <div style={{ padding: "32px", color: "#0f172a" }}>Loading dashboard...</div>;
   }
 
   if (data.status === "failed") {
@@ -614,8 +588,7 @@ function DashboardContent() {
       >
         <section
           style={{
-            background:
-              "linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%)",
+            background: "linear-gradient(135deg, #0f172a 0%, #1e293b 55%, #334155 100%)",
             color: "#ffffff",
             borderRadius: "24px",
             padding: "28px 30px",
@@ -775,9 +748,7 @@ function DashboardContent() {
                   }}
                 />
               ) : (
-                <p style={{ margin: 0, color: "#64748b" }}>
-                  No Monte Carlo data available.
-                </p>
+                <p style={{ margin: 0, color: "#64748b" }}>No Monte Carlo data available.</p>
               )}
             </div>
           </SectionCard>
@@ -827,7 +798,7 @@ function DashboardContent() {
           }}
         >
           <SectionCard
-            title="Schedule Integrity Narrative"
+            title="Schedule Integrity Assessment"
             subtitle="AI review of deterministic P6 schedule quality, logic integrity, and schedule health."
           >
             <p
@@ -838,13 +809,12 @@ function DashboardContent() {
                 lineHeight: 1.8,
               }}
             >
-              {analysis?.schedule_narrative ||
-                "No schedule integrity narrative available."}
+              {analysis?.schedule_narrative || "No schedule integrity narrative available."}
             </p>
           </SectionCard>
 
           <SectionCard
-            title="Risk & Forecast Narrative"
+            title="Forecast Risk Interpretation"
             subtitle="AI explanation of Monte Carlo forecast risk, driver sensitivity, and P80/P90 exposure."
           >
             <p
@@ -855,8 +825,7 @@ function DashboardContent() {
                 lineHeight: 1.8,
               }}
             >
-              {analysis?.risk_narrative ||
-                "No risk and forecast narrative available."}
+              {analysis?.risk_narrative || "No risk and forecast narrative available."}
             </p>
           </SectionCard>
         </section>
@@ -903,15 +872,32 @@ function DashboardContent() {
           >
             {analysis?.executive_summary || "No summary available."}
           </p>
+
+          <p
+            style={{
+              marginTop: "12px",
+              color: "#475569",
+              fontSize: "13px",
+              lineHeight: 1.7,
+            }}
+          >
+            This summary integrates deterministic schedule health and probabilistic risk exposure to
+            support informed management decisions.
+          </p>
         </SectionCard>
 
         <div
           style={{
             fontSize: "12px",
             fontWeight: 800,
-            color: "#2563eb",
-            marginBottom: "8px",
+            color: "#1d4ed8",
+            marginBottom: "10px",
             letterSpacing: "0.06em",
+            background: "#eff6ff",
+            padding: "6px 12px",
+            borderRadius: "8px",
+            display: "inline-block",
+            border: "1px solid #bfdbfe",
           }}
         >
           PRO ANALYTICS LAYER
@@ -955,8 +941,8 @@ function DashboardContent() {
                   fontSize: "14px",
                 }}
               >
-                Deep-dive diagnostic layer providing root-cause analysis, risk
-                interpretation, and execution strategy.
+                Deep-dive diagnostic layer providing root-cause analysis, risk interpretation, and
+                execution strategy.
               </p>
             </div>
 
@@ -977,15 +963,11 @@ function DashboardContent() {
           </div>
 
           {explanationLoading && !explanationLocked ? (
-            <p style={{ margin: 0, color: "#475569" }}>
-              Generating executive explanation...
-            </p>
+            <p style={{ margin: 0, color: "#475569" }}>Generating executive explanation...</p>
           ) : null}
 
           {explanationError ? (
-            <p style={{ margin: 0, color: "#b91c1c", fontWeight: 600 }}>
-              {explanationError}
-            </p>
+            <p style={{ margin: 0, color: "#b91c1c", fontWeight: 600 }}>{explanationError}</p>
           ) : null}
 
           {explanationLocked ? (
@@ -1016,9 +998,8 @@ function DashboardContent() {
                   lineHeight: 1.7,
                 }}
               >
-                Upgrade to Pro to unlock root-cause interpretation, executive
-                risk analysis, strategic recommendations, and management-level
-                schedule explanations.
+                Upgrade to Pro to unlock root-cause interpretation, executive risk analysis,
+                strategic recommendations, and management-level schedule explanations.
               </p>
 
               <button
@@ -1040,10 +1021,7 @@ function DashboardContent() {
             </div>
           ) : null}
 
-          {!explanationLoading &&
-          !explanationError &&
-          explanation &&
-          !explanationLocked ? (
+          {!explanationLoading && !explanationError && explanation && !explanationLocked ? (
             <div style={{ display: "grid", gap: "20px" }}>
               <section
                 style={{
@@ -1172,9 +1150,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense
-      fallback={<div style={{ padding: 32 }}>Loading dashboard...</div>}
-    >
+    <Suspense fallback={<div style={{ padding: 32 }}>Loading dashboard...</div>}>
       <DashboardContent />
     </Suspense>
   );
