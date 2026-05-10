@@ -10,14 +10,11 @@ export default function LandingPage() {
           <div>
             <div style={eyebrow}>TeamVase AI Copilot</div>
 
-            <h1 style={heroTitle}>
-              AI Copilot for Project Controls
-            </h1>
+            <h1 style={heroTitle}>AI Copilot for Project Controls</h1>
 
             <p style={heroText}>
-              Upload your Primavera P6 schedule and get instant schedule health
-              diagnostics, risk insights, Monte Carlo intelligence, and
-              executive-ready AI explanations.
+              Upload your Primavera P6 schedule and get instant schedule health diagnostics, risk
+              insights, Monte Carlo intelligence, and executive-ready AI explanations.
             </p>
 
             <div style={buttonRow}>
@@ -53,34 +50,33 @@ export default function LandingPage() {
           <h2 style={sectionTitle}>Turn schedule data into project intelligence</h2>
 
           <p style={sectionText}>
-            TeamVase helps planners, project controls managers, and project
-            leaders move from manual schedule review to faster decision support.
-            Instead of only seeing dates and charts, you see what is wrong, why
-            it matters, and what action to take.
+            TeamVase helps planners, project controls managers, and project leaders move from manual
+            schedule review to faster decision support. Instead of only seeing dates and charts, you
+            see what is wrong, why it matters, and what action to take.
           </p>
 
           <div style={threeGrid}>
             <div style={infoCard}>
               <h3 style={infoCardTitle}>Upload Primavera files</h3>
               <p style={infoCardText}>
-                Upload P6 `.xer` schedules and generate automated diagnostics
-                without manual spreadsheet preparation.
+                Upload P6 `.xer` schedules and generate automated diagnostics without manual
+                spreadsheet preparation.
               </p>
             </div>
 
             <div style={infoCard}>
               <h3 style={infoCardTitle}>Identify risks quickly</h3>
               <p style={infoCardText}>
-                Review health score, float concerns, open ends, risk drivers,
-                Monte Carlo outputs, and schedule pressure indicators.
+                Review health score, float concerns, open ends, risk drivers, Monte Carlo outputs,
+                and schedule pressure indicators.
               </p>
             </div>
 
             <div style={infoCard}>
               <h3 style={infoCardTitle}>Explain results clearly</h3>
               <p style={infoCardText}>
-                Convert technical schedule analytics into executive-ready
-                explanations, actions, and project control decisions.
+                Convert technical schedule analytics into executive-ready explanations, actions, and
+                project control decisions.
               </p>
             </div>
           </div>
@@ -92,8 +88,8 @@ export default function LandingPage() {
           <h2 style={sectionTitle}>Simple plan structure</h2>
 
           <p style={sectionText}>
-            Start free, validate the workflow, then upgrade when you need
-            unlimited capacity and premium AI decision support.
+            Start free, validate the workflow, then upgrade when you need unlimited capacity and
+            premium AI decision support.
           </p>
 
           <div style={pricingGrid}>
@@ -101,8 +97,7 @@ export default function LandingPage() {
               <div style={planName}>Free</div>
               <div style={planPrice}>$0</div>
               <p style={planText}>
-                Best for testing the upload workflow and viewing basic schedule
-                analysis.
+                Best for testing the upload workflow and viewing basic schedule analysis.
               </p>
 
               <div style={featureList}>
@@ -122,8 +117,8 @@ export default function LandingPage() {
               <div style={planName}>Pro</div>
               <div style={planPrice}>$29/mo</div>
               <p style={planText}>
-                Built for planners and project leaders who need premium schedule
-                intelligence and unlimited working capacity.
+                Built for planners and project leaders who need premium schedule intelligence and
+                unlimited working capacity.
               </p>
 
               <div style={featureList}>
@@ -149,24 +144,21 @@ export default function LandingPage() {
             <div style={featureCard}>
               <div style={featureHeading}>For Planners</div>
               <div style={featureBody}>
-                Quickly review logic quality, float pressure, open ends, and
-                schedule health.
+                Quickly review logic quality, float pressure, open ends, and schedule health.
               </div>
             </div>
 
             <div style={featureCard}>
               <div style={featureHeading}>For Project Controls Managers</div>
               <div style={featureBody}>
-                Compare schedule condition, monitor risk exposure, and support
-                recovery decisions.
+                Compare schedule condition, monitor risk exposure, and support recovery decisions.
               </div>
             </div>
 
             <div style={featureCard}>
               <div style={featureHeading}>For Directors</div>
               <div style={featureBody}>
-                Get management-ready summaries that explain risks in clear
-                business language.
+                Get management-ready summaries that explain risks in clear business language.
               </div>
             </div>
           </div>
@@ -176,13 +168,11 @@ export default function LandingPage() {
       <section style={ctaSection}>
         <div style={sectionInner}>
           <div style={ctaBox}>
-            <h2 style={ctaTitle}>
-              Start with your next schedule upload
-            </h2>
+            <h2 style={ctaTitle}>Start with your next schedule upload</h2>
 
             <p style={ctaText}>
-              Use the free tier to validate the workflow, then move to Pro when
-              you need premium AI insight and unlimited working capacity.
+              Use the free tier to validate the workflow, then move to Pro when you need premium AI
+              insight and unlimited working capacity.
             </p>
 
             <div style={buttonRow}>
