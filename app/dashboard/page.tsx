@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
+import ExportPdfButton from "../../components/dashboard/ExportPdfButton";
 import MonteCarloChart from "../../components/charts/monte-carlo";
 import FloatDistribution from "../../components/charts/float-distribution";
 import TornadoChart from "../../components/charts/tornado";
@@ -188,6 +189,7 @@ function DashboardContent() {
 
   return (
     <div
+      id="executive-dashboard"
       style={{
         minHeight: "100vh",
         background: "#f8fafc",
@@ -253,6 +255,10 @@ function DashboardContent() {
               >
                 {headerSummary}
               </p>
+
+              <div style={{ marginTop: "16px" }}>
+                <ExportPdfButton />
+              </div>
             </div>
 
             <div
