@@ -400,7 +400,7 @@ export default function PricingPage() {
                 cursor: "not-allowed",
               }}
             >
-              {currentPlan === "free" ? "Current Plan" : "Free Plan"}
+              {currentPlan === "free" ? "Current Plan" : "Get Started"}
             </button>
           </PlanCard>
 
@@ -485,6 +485,18 @@ export default function PricingPage() {
             >
               Clear visibility into what unlocks when you move from Free to Pro.
             </p>
+
+            <p
+              style={{
+                margin: "10px 0 0",
+                color: "#94a3b8",
+                fontSize: "13px",
+                lineHeight: 1.7,
+              }}
+            >
+              Designed for planners, PMO teams, EPC contractors, consultants, and owner operators
+              managing complex capital projects.
+            </p>
           </div>
 
           <div
@@ -507,11 +519,11 @@ export default function PricingPage() {
           </div>
 
           <FeatureRow feature="Schedule uploads" free="Up to 3" pro="Unlimited" />
-          <FeatureRow feature="Dashboard metrics" free="Included" pro="Included" />
+          <FeatureRow feature="Schedule diagnostics" free="Included" pro="Included" />
           <FeatureRow feature="AI Explanation Engine" free="Locked" pro="Included" />
           <FeatureRow feature="AI Compare insight" free="Locked" pro="Included" />
           <FeatureRow feature="Saved reports" free="Up to 3" pro="Unlimited" />
-          <FeatureRow feature="Executive workflow continuity" free="Limited" pro="Included" />
+          <FeatureRow feature="Executive reporting workflow" free="Limited" pro="Included" />
         </section>
       </div>
     </div>
